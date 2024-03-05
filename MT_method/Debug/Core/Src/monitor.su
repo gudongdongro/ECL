@@ -1,5 +1,0 @@
-../Core/Src/monitor.c:21:6:connectData	24	static
-../Core/Src/monitor.c:34:6:putcToBuffer	16	static
-../Core/Src/monitor.c:41:6:outhex8_Buffer	24	static
-../Core/Src/monitor.c:55:6:outhex32_Buffer	16	static
-../Core/Src/monitor.c:104:6:ProcessToHostBlock	32	static
