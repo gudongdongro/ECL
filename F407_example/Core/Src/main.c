@@ -24,7 +24,6 @@
  * 																						 *
  * 																		-made by Jeong.  *
  *****************************************************************************************
- *****************************************************************************************
  * @file           : main.c
  * @brief          : DIP_transition_all
  **************************************
@@ -402,7 +401,7 @@ void DWT_us_Delay(uint32_t us); // 인자의 단위는 microseconds
 void DWT_ms_Delay(uint32_t ms); // 인자의 단위는 microseconds
 void UsbPutString(char *s);
 
-void Timer5_PWM_dir_Init(); 	// Timer1(Advanced-control timer)의 Encoder counter 기능을 학습하는 함수
+void Timer8_PWM_dir_Init(); 	// Timer1(Advanced-control timer)의 Encoder counter 기능을 학습하는 함수
 void Timer2_Encoder_Init(); 	// Timer2(32-bit General-purpose timer)의 Encoder counter 기능을 학습하는 함수
 void Timer3_Encoder_Init(); 	// Timer3(16-bit General-purpose timer)의 Encoder counter 기능을 학습하는 함수
 void Timer4_Encoder_Init(); 	// Timer4(16-bit General-purpose timer)의 Encoder counter 기능을 학습하는 함수
@@ -1335,12 +1334,12 @@ void UsbPutString(char *s) {
 //------------------------------
 // STM32F407      Motor driver
 //------------------------------
-// PE9 -> PA2 (AF2)     PWM
+// PE9 -> PC6 ()     PWM
 // PE8 		            dir
 // GND             Encoder GND (Green)
 //----------------------------------------
 //-----------------------------------------------------------------------
-void Timer5_PWM_dir_Init() {
+void Timer8_PWM_dir_Init() {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;  // GPIOE clock enable, DIR
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;  // GPIOA clock enable, PWM
 	RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;   // TIM5 clock enable
