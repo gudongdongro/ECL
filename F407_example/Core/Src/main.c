@@ -69,6 +69,8 @@
  * 	PA6			     	MISO	  *
  * 	PA7			    	MOSI	  *
  *************************************/
+// PC0, PC2,
+
 
 // ------------------------------ Header -----------------------------------------
 #include "stm32f4xx.h"   // Compiler symbols에 STM32F407xx를 선언하면 stm32f407xx.h를 include 해준다.
@@ -412,7 +414,6 @@ void Timer7_UPCounter_Init();	// 단순 UpCounter. M/T method에서 cnt의 변�
 void Timer5_UPCounter_Init();	// 단순 UpCounter. M/T method에서 cnt의 변화를 보기 위한 함수의 init
 void Timer9_Interrupt_Init();	// 1ms 주기로 인터럽트를 걸어주는 interrupt timer - M/T method 1단부
 
-void Timer6_InterruptTest();	// 추후 어디서든 쓰라고 만들어 둔 인터럽트
 void LED_SW_Init();				// 도립진자 제어와 상태를 표시하기 위한 LED 및 switch 활성화
 void con_PI1_Init();			// con_PI1 초기설정
 float modulo(float alpha);		// 원하는 각도로 값을 만들어 줄 modulo 함수
@@ -532,7 +533,7 @@ int main(void) {
 
 //	SDIO_Init();				// SDIO1 통신 초기설정
 	MX_USB_DEVICE_Init();  		// USB를 사용하려면 이 line을 활성화 해야 한다.
-//	Timer5_PWM_dir_Init(); 		// TIM1_CH1 : PE9 --> PWM 		// PIOB     : PE8 --> dir
+//	Timer8_PWM_dir_Init(); 		// TIM1_CH1 : PE9 --> PWM 		// PIOB     : PE8 --> dir
 //	Timer2_Encoder_Init(); 		// TIM2_CH1 : PA15 	--> A상 연결 	// TIM2_CH2 : PB3 --> B상 연결 (BLDC모터 풀업저항 구성해야 함.)
 	Timer3_Encoder_Init(); 		// TIM3_CH1 : PB4 	--> A상 연결 	// TIM3_CH2 : PB5 --> B상 연결
 //	Timer4_Encoder_Init(); 		// TIM4_CH1 : PB6 	--> A상 연결 	// TIM4_CH2 : PB7 --> B상 연결
@@ -791,9 +792,9 @@ int main(void) {
 	GPIOD->BSRR = GPIO_BSRR_BR14;	// EP2 상태
 	GPIOD->BSRR = GPIO_BSRR_BR15;	// EP3 상태
 	//===========================================================
-	NVIC_SetPriority(TIM8_UP_TIM13_IRQn,1); // 우선순위를 1번으로
+	NVIC_SetPriority(TIM6_DAC_IRQn,1); // 우선순위를 1번으로
 	// TIM8의 인터럽트 기능을 사용하기 위해 핀을 활성화 시킨다.
-	NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
+	NVIC_EnableIRQ(TIM6_DAC_IRQn);
 	//============================================================
 	RCC->AHB1ENR |= (uint32_t)RCC_AHB1ENR_GPIOCEN;    // Port C에 clock 공급
 	GPIOC->MODER &= ~((uint32_t)GPIO_MODER_MODER2);
@@ -991,7 +992,7 @@ int main(void) {
 //		sprintf(str, "%d\n",clock_diff);
 		sprintf(str, "%.2f %.2f\n", temp_d_theta1_mt, temp_d_theta1);
 //		UsbPutString(str);
-		TX3_PutString(str);
+//		TX3_PutString(str);
 		GPIOC->BSRR |= GPIO_BSRR_BR2;   // PC2 HIGH;
 		while (!((update_time - DWT->CYCCNT) & 0x80000000));
 		update_time += SampleTimeCycle;
@@ -1008,17 +1009,16 @@ int main(void) {
 void TIM6_DAC_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s 에서 찾아볼 수 있다.
 {
 	static int flag=0;
-
-	if(flag==0)
-	{
-		GPIOC->BSRR = GPIO_BSRR_BS0;   // PC0 HIGH;
-		flag = 1;
-	}
-	else
-	{
-		GPIOC->BSRR = GPIO_BSRR_BR0;   // PC0 LOW;
-		flag = 0;
-	}
+//	if(flag==0)
+//	{
+//		GPIOC->BSRR = GPIO_BSRR_BS0;   // PC0 HIGH;
+//		flag = 1;
+//	}
+//	else
+//	{
+//		GPIOC->BSRR = GPIO_BSRR_BR0;   // PC0 LOW;
+//		flag = 0;
+//	}
 
 	if (TIM6->SR & TIM_SR_UIF) {
 		// encoder 값을 수신받아, 상태 변수값으로 변환하는 단계, 우리가 사용할 parameter로 변환
@@ -1334,15 +1334,16 @@ void UsbPutString(char *s) {
 //------------------------------
 // STM32F407      Motor driver
 //------------------------------
-// PE9 -> PC6 ()     PWM
+// PE9 -> PB1 (AF3)     PWM
 // PE8 		            dir
 // GND             Encoder GND (Green)
 //----------------------------------------
+// 50us로 PWM 생성
 //-----------------------------------------------------------------------
 void Timer8_PWM_dir_Init() {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;  // GPIOE clock enable, DIR
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;  // GPIOA clock enable, PWM
-	RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;   // TIM5 clock enable
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;  // GPIOB clock enable, PWM
+	RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;   // TIM8 clock enable
 
 	// direction 구현을 위해 PIO설정을 한다.
 	GPIOE->MODER &= ~((uint32_t) GPIO_MODER_MODER8);
@@ -1351,37 +1352,52 @@ void Timer8_PWM_dir_Init() {
 	GPIOE->OSPEEDR &= ~((uint32_t) GPIO_OSPEEDER_OSPEEDR8);
 	GPIOE->OSPEEDR |= (0x3U << GPIO_OSPEEDR_OSPEED8_Pos); // Very high speed일 경우 11 (=0x3)로 설정
 
-	// PE9을 alternate function으로 설정하자. -> PA2 (AF2)
-	GPIOA->MODER &= ~GPIO_MODER_MODER2;
-	GPIOA->MODER |= 0x2 << GPIO_MODER_MODER2_Pos; // 10 (=0x2) : alternate function
+	// PE9을 alternate function으로 설정하자. -> PB1 (AF3)
+	GPIOB->MODER &= ~GPIO_MODER_MODER1;
+	GPIOB->MODER |= 0x2 << GPIO_MODER_MODER1_Pos; // 10 (=0x2) : alternate function
 	//----------------------------------------------------------
-	// PE9은 AFR[1]에서 설정해야 한다. -> PA2는 AFR[0]
+	// PE9은 AFR[1]에서 설정해야 한다. -> PB1는 AFR[0]
 	// AFR[1]에서는 1번에 해당한다.
 	//----------------------------------------------------------
-	GPIOA->AFR[0] &= ~GPIO_AFRL_AFSEL2;
-	GPIOA->AFR[0] |= 0x2 << GPIO_AFRL_AFSEL2_Pos;  //  AF2 할당, AF2는 0010 (=0x2)
+	GPIOB->AFR[0] &= ~GPIO_AFRL_AFSEL1;
+	GPIOB->AFR[0] |= 0x3 << GPIO_AFRL_AFSEL1_Pos;  //  AF3 할당, AF3는 0011 (=0x3)
 
-	// 여기서부터 TIM5을 설정해보자. APB1 - 42MHz임
-	TIM5->PSC = 0x0; // Prescale 설정 PSC=0, The counter clock frequency (CK_CNT) is equal to fCK_PSC / (PSC[15:0] + 1). 즉 no division에 해당함. fCK_PSC = 84MHz
-	TIM5->CR1 |= TIM_CR1_ARPE; // Auto-reload preload enable, ARPE=1 : TIMx_ARR register is buffered
-	TIM5->CR1 &= ~TIM_CR1_CMS;
-	TIM5->CR1 |= (0x3 << TIM_CR1_CMS_Pos); // 11 (=0x3) : Center-aligned mode 3. Output compare interrupt flag이 counter가 up, down일 때 모두 set 되는 방식
-	TIM5->ARR = 2100;   // auto-reload register. 0~2100까지 카운트, 2100~0까지 카운트. PWM frequency는 84 MHz/(2*2100) = 20 KHz
+	// 여기서부터 TIM8을 설정해보자. APB2 - 168MHz임
+	TIM8->PSC = 0x0; // Prescale 설정 PSC=0, The counter clock frequency (CK_CNT) is equal to fCK_PSC / (PSC[15:0] + 1). 즉 no division에 해당함.
+	TIM8->CR1 |= TIM_CR1_ARPE; // Auto-reload preload enable, ARPE=1 : TIMx_ARR register is buffered
+	TIM8->CR1 &= ~TIM_CR1_CMS;
+	TIM8->CR1 |= (0x3 << TIM_CR1_CMS_Pos); // 11 (=0x3) : Center-aligned mode 3. Output compare interrupt flag이 counter가 up, down일 때 모두 set 되는 방식
+	TIM8->ARR = 4200;   // PWM frequency는 168 MHz/(2*4200) = 20 KHz
 
-	// Channel 3를 PWM mode로 설정한다.
-	TIM5->CCER |= TIM_CCER_CC3E;    // Capture/compare output 3를 enable
-	TIM5->CCER &= ~TIM_CCER_CC3P; // CC3P=0 : Capture/compare output 3을 active high로 설정
-	TIM5->CCMR2 &= ~TIM_CCMR2_CC3S; // CC3S=0, CC3 channel is configured as output
-	TIM5->CCMR2 &= ~TIM_CCMR2_OC3M; // Output compare 3 mode
-	TIM5->CCMR2 |= (0x6 << TIM_CCMR2_OC3M_Pos);  // OC3M=0110 (=0x6) PWM mode 1
+	// Channel 3N를 PWM mode로 설정한다. 여기부터 쭉 손봐야할듯
+	TIM8->CCER |= TIM_CCER_CC3NE;    // Capture/Compare 3 complementary output enable
+	TIM8->CCER &= TIM_CCER_CC3NP; // CC3NP=0, Capture/compare complementary output 3을 active high로 설정
 
-	TIM5->CR1 &= ~TIM_CR1_CKD;
-	TIM5->CR1 |= (0x0 << TIM_CR1_CKD_Pos); // 00: t_DTS = tck_INT, 01:t_DTS=2*tck_INT, 10:t_DTS=4*tck_INT
+	TIM8->CCMR2 &= ~TIM_CCMR2_CC3S; // CC3S=0 : CC3 channel is configured as output
 
-	TIM5->CNT = 0;   // Counter를 0으로 clear
-	TIM5->CCR3 = 1050;  // 우선 PWM duty 0
+	TIM8->CCMR2 &= ~TIM_CCMR2_OC3M;
+	TIM8->CCMR2 |= (0x6 << TIM_CCMR2_OC3M_Pos);  // OC3M=0110 (=0x6) : PWM mode 1
 
-	TIM5->CR1 |= TIM_CR1_CEN;   // TIM5 enable.
+	//--------------------------------------------------------------------------------
+	// Idle state 값을 설정하자. idle state라는 것은 MOE (Master Output Enable)이 0 이 되었을 때
+	// PWM pin의 출력값을 뜻한다. 이 값들은 MOE=0 이 되고 dead-time 만큼 시간이 지난후에 출력된다.
+	//--------------------------------------------------------------------------------
+	TIM8->CR2 |= TIM_CR2_OIS3N;       // OC3N의 idle state는 High로 설정
+
+	TIM8->CR1 &= ~TIM_CR1_CKD;
+	TIM8->CR1 |= (0x0 << TIM_CR1_CKD_Pos); // 00: t_DTS = tck_INT, 01:t_DTS=2*tck_INT, 10:t_DTS=4*tck_INT
+
+	TIM8->BDTR &= ~TIM_BDTR_OSSI; // OSSI=0 : MOE=0일 경우 OC/OCN outputs are disabled-> Hi-Z state가 됨.
+								  // 만약 OSSI=1 이면 MOE=0 일 때 deadtime 만큼 지난 후 idle level로 지정한 값으로 forced 된다.
+	TIM8->BDTR &= ~TIM_BDTR_DTG;
+	TIM8->BDTR |= (10 << TIM_BDTR_DTG_Pos);  // dead-time=10*dts=59.52 [ns]
+
+	TIM8->CNT = 0;   // Counter를 0으로 clear
+
+	TIM8->CCR1 = 2100;  // 2100은 4200의 절반에 해당하는 값
+
+	TIM8->CR1 |= TIM_CR1_CEN;   // TIM1 enable.
+	TIM8->BDTR |= TIM_BDTR_MOE; // MOE=1 : Main output enable
 }
 
 //void Timer1_PWM_dir_Init() {
@@ -1856,6 +1872,17 @@ void TIM1_CC_IRQHandler() { // IRQ Handler의 이름은 startup_stm32f407xx.s �
 		// fc는 m2가 생성되는 주파수 즉, 단순 Upcounter의 주파수가 들어가는데, prescale = 1로 가져서 FCK_PSC = 84MHz이다. 즉 42MHz
 		// P는 CPR로 생각한다. 2PI/P의 값을 enc2_to_rad라는 이름의 변수로 설정하였다.
 		d_theta1_mt = (enc2_to_rad*42000000*(float)enc_diff)/(float)clock_diff;
+		if(flag1==0)
+		{
+			GPIOB->BSRR |= GPIO_BSRR_BS0;   // PB0 HIGH;
+			flag1 = 1;
+		}
+		else
+		{
+			GPIOB->BSRR |= GPIO_BSRR_BR0;   // PB0 LOW;
+			flag1 = 0;
+		}
+		TIM1->SR &= ~TIM_SR_UIF;
 	}
 //	status = TIM1->SR;
 //	TIM1->SR = 0x0000; 					// TIM1 인터럽트 status register 초기화
@@ -1863,16 +1890,6 @@ void TIM1_CC_IRQHandler() { // IRQ Handler의 이름은 startup_stm32f407xx.s �
 //	status = TIM9->SR;
 //	TIM9->SR = 0x0000; 					// TIM9 counter와 interrupt를 다시 켜기 전에 pending 되어있는 status register 초기화
 
-	if(flag1==0)
-	{
-		GPIOB->BSRR |= GPIO_BSRR_BS0;   // PB0 HIGH;
-		flag1 = 1;
-	}
-	else
-	{
-		GPIOB->BSRR |= GPIO_BSRR_BR0;   // PB0 LOW;
-		flag1 = 0;
-	}
 }
 
 void Timer5_UPCounter_Init() {
@@ -1931,7 +1948,7 @@ void Timer9_Interrupt_Init() {
 void TIM1_BRK_TIM9_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s 에서 찾아볼 수 있다.
 {
 	static int flag=0;
-	if (TIM1->SR & TIM_SR_UIF)
+	if (TIM9->SR & TIM_SR_UIF)
 	{
 		TIM9->CR1 &= ~TIM_CR1_CEN;   			// TIM9 counter disable.
 		TIM9->DIER &= ~TIM_DIER_UIE;			// TIM9 1ms interrupt disable
@@ -1949,6 +1966,7 @@ void TIM1_BRK_TIM9_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx
 			GPIOC->BSRR |= GPIO_BSRR_BR0;   // PC0 LOW;
 			flag = 0;
 		}
+		TIM9->SR &= ~TIM_SR_UIF;
 	}
 }
 

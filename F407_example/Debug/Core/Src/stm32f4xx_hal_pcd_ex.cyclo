@@ -1,2 +1,2 @@
-stm32f4xx_hal_pcd_ex.c:56:19:HAL_PCDEx_SetTxFiFo	3
-stm32f4xx_hal_pcd_ex.c:98:19:HAL_PCDEx_SetRxFiFo	1
+../Core/Src/stm32f4xx_hal_pcd_ex.c:56:19:HAL_PCDEx_SetTxFiFo	3
+../Core/Src/stm32f4xx_hal_pcd_ex.c:98:19:HAL_PCDEx_SetRxFiFo	1
