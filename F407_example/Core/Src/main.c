@@ -534,7 +534,7 @@ int main(void) {
 
 //	SDIO_Init();				// SDIO1 통신 초기설정
 	MX_USB_DEVICE_Init();  		// USB를 사용하려면 이 line을 활성화 해야 한다.
-//	Timer8_PWM_dir_Init(); 		// TIM1_CH1 : PE9 --> PWM 		// PIOB     : PE8 --> dir
+	Timer8_PWM_dir_Init(); 		// TIM8_CH3N : PB1 --> PWM 		// PIOE     : PE8 --> dir
 //	Timer2_Encoder_Init(); 		// TIM2_CH1 : PA15 	--> A상 연결 	// TIM2_CH2 : PB3 --> B상 연결 (BLDC모터 풀업저항 구성해야 함.)
 	Timer3_Encoder_Init(); 		// TIM3_CH1 : PB4 	--> A상 연결 	// TIM3_CH2 : PB5 --> B상 연결
 //	Timer4_Encoder_Init(); 		// TIM4_CH1 : PB6 	--> A상 연결 	// TIM4_CH2 : PB7 --> B상 연결
@@ -985,8 +985,8 @@ int main(void) {
 
 //		sprintf(str, "%d\n",clock_diff);
 		sprintf(str, "%.2f %.2f\n", temp_d_theta1_mt, temp_d_theta1);
-//		UsbPutString(str);
-		TX3_PutString(str);
+		UsbPutString(str);
+//		TX3_PutString(str);
 		GPIOC->BSRR |= GPIO_BSRR_BR2;   // PC2 HIGH;
 		while (!((update_time - DWT->CYCCNT) & 0x80000000));
 		update_time += SampleTimeCycle;
@@ -1108,7 +1108,7 @@ void TIM6_DAC_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s �
 //		if (sd_flag) {
 //
 //			GPIOD->ODR &= ~0x0000F000;
-////			TIM5->CCR3 = 0;
+////			TIM8->CCR3 = 0;
 //		}
 //		// 정상이라면, PWM을 입력하라.
 //		else{
@@ -1121,11 +1121,11 @@ void TIM6_DAC_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s �
 //			// 전압을 PWM 형태로 인가해주기위해 변환과정이 필요하며, 양의 방향일때와 음의 방향일 경우 Dir방향이 다름.
 //			if (volt * volt_to_duty > 0) {
 //				GPIOE->BSRR = GPIO_BSRR_BR8;		// Dir 정방향 설정
-////				TIM5->CCR3 = volt * volt_to_duty;	// 전압을 duty 형태로 변환해서 CCR값으로 입력
+////				TIM8->CCR3 = volt * volt_to_duty;	// 전압을 duty 형태로 변환해서 CCR값으로 입력
 //			}
 //			else {
 //				GPIOE->BSRR = GPIO_BSRR_BS8;		// Dir 역방향 설정
-////				TIM5->CCR3 = -volt * volt_to_duty;	// 전압을 duty 형태로 변환해서 CCR값으로 입력
+////				TIM8->CCR3 = -volt * volt_to_duty;	// 전압을 duty 형태로 변환해서 CCR값으로 입력
 //			}
 //		}
 //
@@ -1351,8 +1351,9 @@ void Timer8_PWM_dir_Init() {
 	TIM8->ARR = 4200;   // PWM frequency는 168 MHz/(2*4200) = 20 KHz
 
 	// Channel 3N를 PWM mode로 설정한다. 여기부터 쭉 손봐야할듯
+	TIM8->CCER &= ~TIM_CCER_CC3E;
 	TIM8->CCER |= TIM_CCER_CC3NE;    // Capture/Compare 3 complementary output enable
-	TIM8->CCER &= TIM_CCER_CC3NP; // CC3NP=0, Capture/compare complementary output 3을 active high로 설정
+	TIM8->CCER &= ~TIM_CCER_CC3NP; // CC3NP=0, Capture/compare complementary output 3을 active high로 설정
 
 	TIM8->CCMR2 &= ~TIM_CCMR2_CC3S; // CC3S=0 : CC3 channel is configured as output
 
@@ -1363,19 +1364,21 @@ void Timer8_PWM_dir_Init() {
 	// Idle state 값을 설정하자. idle state라는 것은 MOE (Master Output Enable)이 0 이 되었을 때
 	// PWM pin의 출력값을 뜻한다. 이 값들은 MOE=0 이 되고 dead-time 만큼 시간이 지난후에 출력된다.
 	//--------------------------------------------------------------------------------
-	TIM8->CR2 |= TIM_CR2_OIS3N;       // OC3N의 idle state는 High로 설정
+	TIM8->CR2 &= ~TIM_CR2_OIS3N;       // OC3N의 idle state는 Lwo로 설정
 
 	TIM8->CR1 &= ~TIM_CR1_CKD;
 	TIM8->CR1 |= (0x0 << TIM_CR1_CKD_Pos); // 00: t_DTS = tck_INT, 01:t_DTS=2*tck_INT, 10:t_DTS=4*tck_INT
 
 	TIM8->BDTR &= ~TIM_BDTR_OSSI; // OSSI=0 : MOE=0일 경우 OC/OCN outputs are disabled-> Hi-Z state가 됨.
 								  // 만약 OSSI=1 이면 MOE=0 일 때 deadtime 만큼 지난 후 idle level로 지정한 값으로 forced 된다.
+	TIM8->BDTR &= ~TIM_BDTR_OSSR;
+
 	TIM8->BDTR &= ~TIM_BDTR_DTG;
 	TIM8->BDTR |= (10 << TIM_BDTR_DTG_Pos);  // dead-time=10*dts=59.52 [ns]
 
 	TIM8->CNT = 0;   // Counter를 0으로 clear
 
-	TIM8->CCR1 = 2100;  // 2100은 4200의 절반에 해당하는 값
+	TIM8->CCR3 = 2100;  // 2100은 4200의 절반에 해당하는 값
 
 	TIM8->CR1 |= TIM_CR1_CEN;   // TIM1 enable.
 	TIM8->BDTR |= TIM_BDTR_MOE; // MOE=1 : Main output enable
