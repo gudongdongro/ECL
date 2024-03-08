@@ -300,9 +300,9 @@ typedef struct Long_dir_entry /* structure of long directory entry */
 
 #define MatFile_name	"DIP_data.mat"	// 파일명을 선택한다. (이름 설정은 미리 맞추자!)
 #define name_max		0xFF			// 이름 최대 길이
-#define MF_index		0x28			// MatFile의 고정된 변수 공간 길이
-#define DIP_EP_cnt		4				// EP 개수
-#define DIP_point_cnt	161				// DIP의 node값 개수 (이 부분은 내가 저장한 mat 파일의 수에 맞춰야한다.)
+#define MF_index		0x28			//**** MatFile의 고정된 변수 공간 길이
+#define DIP_EP_cnt		4				//**** EP 개수
+#define DIP_point_cnt	161				//**** DIP의 node값 개수 (이 부분은 내가 저장한 mat 파일의 수에 맞춰야한다.)
 #define DIP_state_cnt	7				// 상태변수 개수
 #define DIP_trans_cnt	DIP_EP_cnt*(DIP_EP_cnt-1) // 천이 가능한 총 궤적 수
 
@@ -360,16 +360,16 @@ void Get_Transition_param(float t[DIP_point_cnt],			// 천이 종류에 맞는 �
 #define teeth 			38			// timing pully teeth 갯수 (2 [mm] 피치)
 #define motor_cpr 		20000		// motor encoder cpr
 #define pendulum1_cpr	8192		// pendulum1 encoder cpr
-#define pendulum2_cpr	8192		// pendulum2 encoder cpr
+#define pendulum2_cpr	4096		// pendulum2 encoder cpr -> 3단에서 분리해서 할때 8192로 바꿔야함
 #define MaxV 			24      	// 인가 전압 맥스값 24 [V]
-#define KP 				16.0080	 	// 모터제어에 사용되는 Kp값
-#define KI 				647.1190	// 모터제어에 사용되는 Ki값
+#define KP 				16.3470	 	// 모터제어에 사용되는 Kp값 -> 3단에서 분리해서 할때 16.0080로 바꿔야함
+#define KI 				377.0838	// 모터제어에 사용되는 Ki값 -> 3단에서 분리해서 할때 647.1190로 바꿔야함
 #define fc 				10			// 차단 주파수 [Hz]
 #define PI 				3.14159265 	// arm_math.h 헤더파일에도 정의 되어 있음.
 
 // 엔코더 값 변환식
-#define volt_to_duty 	2100.0 / MaxV				// 전압을 듀티로 전환
-#define enc1_to_pos 	2*PI*0.0095 / motor_cpr	// 엔코더 1번의 값을 cart_position [m] 으로 변환
+#define volt_to_duty 	4200.0 / MaxV				// 전압을 듀티로 전환
+#define enc1_to_pos 	0.002 * teeth / motor_cpr	// 엔코더 1번의 값을 cart_position [m] 으로 변환 -> 3단에서 분리해서 할때 8192로 바꿔야함
 #define enc2_to_rad 	2 * PI / pendulum1_cpr		// 엔코더 2번의 값을 pendulum 1 angle [rad] 으로 변환
 #define enc3_to_rad 	2 * PI / pendulum2_cpr 		// 엔코더 3번의 값을 pendulum 2 angle [rad] 으로 변환
 
@@ -457,6 +457,7 @@ volatile float theta2 = 0;
 volatile float d_theta1 = 0;
 volatile float d_theta2 = 0;
 
+
 // 가속도 적분,(속도 레퍼런스)값
 volatile float acc_int = 0;
 
@@ -497,12 +498,11 @@ volatile int16_t enc_diff;
 volatile uint32_t clock_cnt;
 volatile uint32_t clock_cnt_prev;
 volatile uint32_t clock_diff;
-volatile float d_theta1_mt;
-
-
+volatile float d_theta1_mt = 0;
+volatile float temp_d_theta1_mt;
+float temp_d_theta1;
 int main(void) {
-	float temp_d_theta1_mt=0.0;
-	float temp_d_theta1=0.0;
+
 	uint8_t total_file = 0;					// SD카드에 들어있는 총 파일 수 확인한다.
 	uint8_t file_number = 0;				// 선택할 파일의 번호를 저장한다.
 	uint32_t SD_start_sector[MAX_FILE];		// 파일에 수에 맞는 초기값 저장
@@ -535,9 +535,9 @@ int main(void) {
 //	SDIO_Init();				// SDIO1 통신 초기설정
 	MX_USB_DEVICE_Init();  		// USB를 사용하려면 이 line을 활성화 해야 한다.
 	Timer8_PWM_dir_Init(); 		// TIM8_CH3N : PB1 --> PWM 		// PIOE     : PE8 --> dir
-//	Timer2_Encoder_Init(); 		// TIM2_CH1 : PA15 	--> A상 연결 	// TIM2_CH2 : PB3 --> B상 연결 (BLDC모터 풀업저항 구성해야 함.)
+	Timer2_Encoder_Init(); 		// TIM2_CH1 : PA15 	--> A상 연결 	// TIM2_CH2 : PB3 --> B상 연결 (BLDC모터 풀업저항 구성해야 함.)
 	Timer3_Encoder_Init(); 		// TIM3_CH1 : PB4 	--> A상 연결 	// TIM3_CH2 : PB5 --> B상 연결
-//	Timer4_Encoder_Init(); 		// TIM4_CH1 : PB6 	--> A상 연결 	// TIM4_CH2 : PB7 --> B상 연결
+	Timer4_Encoder_Init(); 		// TIM4_CH1 : PB6 	--> A상 연결 	// TIM4_CH2 : PB7 --> B상 연결
 	Timer6_Interrupt_Init();	// 1ms 주기로 인터럽트를 걸저주는 초기화
 	Timer1_MT_Interrupt_Init();	// 1단부 ENC 값을 받아와서 속도 계산하는 핸들러의 init
 	Timer5_UPCounter_Init();	// 단순 UpCounter. M/T method에서 cnt의 변화를 보기 위한 함수의 init
@@ -556,224 +556,224 @@ int main(void) {
 	enc2_p = 0;
 	enc3_p = 0;
 
-//	// 돌입 전류를 막고자 시작 전 1초간 여유를 주기 위함.
-//	DWT_ms_Delay(1000);
-//	total_file = fatGetDirEntry(FirstDirCluster); 			// 파일 수 확인
-//
-//	// SD카드 파일들의 시작 sector값을 저장한다.
-//	for (int i = 0; i < total_file; i++) SD_start_sector[i] = fatClustToSect(file_start_cluster[i]);
-//	// 백업파일에 초기값 저장.
-//	memcpy(SD_backup_sector, SD_start_sector, sizeof(SD_start_sector));
-//
-//	// SD카드 제목 출력
-//	for (int i = 0; i < total_file; i++) {
-//		uint8_t file_flag;		// 파일 이름에 따라 포맷형식 확인.
-//		bool name_flag = false;	// 이름 일치 여부 확인.
-//
-//		// 파일명을 저장할 변수값을 초기화 시켜줌
-//		for (int j = 0; j < name_max; j++)
-//			file_name[j] = 0;
-//
-//		// 파일을 하나 선택한다!
-//		file_flag = Get_long_filename(i);	// check file name
-//
-//		// 그 이름이 짧으면 0, 길면 1
-//		if (file_flag == 0)					// short file name(8.3 format)
-//			Save_short_filename();
-//
-//		// 이름이 길면 이 방식을 이용한다.
-//		else if (file_flag == 1)			// long file name
-//			Save_long_filename();
-//
-//		else if (file_flag == 2) {	// file name is longer than 195 characters
-//		}
-//		else {			// file name error
-//		}
-//
-//		for (int j = 0; j < sizeof(tmp_name); j++){
-//			name_flag = true;
-//			if(file_name[j] != tmp_name[j]) // 파일명이 다르면 끝낸다.
-//				{
-//					name_flag = false;
-//					break;
-//				}
-//		}
-//
-//		if (name_flag) file_number = i;
-//
-//		DWT_us_Delay(100); // 약간의 기다림이 필요한 것 같다.
-//	}
-//
-//	// 파일의 마지막 섹터를 저장하기.
-//	for (int i = 0; i < total_file; i++) SD_end_sector[i] = (file_size[i] >> 9) + SD_start_sector[i];
-//
-//	// mat 파일의 기본 파일 데이터 가져오기
-//	SD_read_sector(SD_start_sector[file_number], SDbuffer); // MatFile의 가장 첫 데이터 512Byte 읽기
-//	memcpy(Mat_Info, SDbuffer, sizeof(Mat_Info));			// MatFile의 기본 정보를 저장한다.
-//	memcpy(MFbuffer, SDbuffer, sizeof(SDbuffer));			// MFbuffer에도 초기 값을 저장.
-//
-//	pbuffer = SDbuffer + sizeof(Mat_Info); 					// pbuffer 버퍼는 MatFile 기본정보 이후부터 시작한다.
-//	memcpy(Mat_Format, pbuffer, sizeof(Mat_Format));		// 첫 번째 변수 Format을 저장한다.
-//
-//	for (int i = 0; i < 5; i++) {
-//		uint32_t DataType[5] = { }; // 올바른 데이터인지 확인하기 위한 5개의 DataType
-//		uint32_t name_len;			// name 길이값
-//		uint32_t data_len;			// data 길이값
-//
-//		// MF의 해당위치에 반드시 들어가야하는 dataTye 수신
-//		DataType[0] = *((uint32_t*) (Mat_Format));		// MF의 가장 첫 부분에는 miMATRIX값이 있어야 한다. 없다면 mat 파일을 저장할 때 압축형식으로 되었을 확률이 크다.
-//		DataType[1] = *((uint32_t*) (Mat_Format + 8));	// MF의 해당 부분은 Array Flags로 반드시 miUINT32값이 있어야 한다.
-//		DataType[2] = *((uint32_t*) (Mat_Format + 24));	// MF의 해당 부분은 Dimensions Array로 반드시 miINT32값이 있어야 한다.
-//
-//		// 모든 데이터가 정상일 때 동작.
-//		if (DataType[0] == miMATRIX && DataType[1] == miUINT32 && DataType[2] == miINT32) {}
-//		// 데이터가 잘못된 값이면 모든 동작을 멈춘다.(무한 루프)
-//		else {
-//			GPIOD->BSRR |= GPIO_BSRR_BS13;
-//			while (1) ;
-//		}
-//
-//		// 가장 첫번째로 수신한 경우 이미 값을 받아왔기 때문에, 예외처리를 한다.
-//		if (i == 0) {
-//			MF[i].mf_sector = SD_start_sector[file_number]; // MF의 초기값을 그대로 섹터값으로 저장한다.
-//			MF[i].mf_sector_index = 0x80;					// MF의 시작 위치를 저장한다.
-//		}
-//		// 첫 번쨰가 아니라면, 마지막 단계에서 값을 업데이트한다. 따라서 그 값을 그대로 사용한다.
-//		else {
-//			MF[i].mf_sector = nextMF_sector;				// MF의 섹터값을 저장한다.
-//			MF[i].mf_sector_index = nextMF_index;			// MF의 시작 위치를 저장한다.
-//		}
-//
-//		// 이후 MF에서 필요한 데이터를 알맞게 저장한다.
-//		MF[i].mf_len = *((uint32_t*) (Mat_Format + 4)) + 8; 	// 해당하는 변수값의 총 데이터를 포함한 크기를 저장한다. 그리고 시작부분도 포함하기 위해 8 byte를 더해준다.
-//		MF[i].mf_classType = *((uint32_t*) (Mat_Format + 16));	// 데이터 저장 형식이 SINGLE인지, DOUBLE인지 확인 (Classes 0x07 -> SIGNLE, 0x06 -> DOUBLE)
-//		MF[i].mf_rows = *((uint32_t*) (Mat_Format + 32));		// 변수의 행 크기값 저장
-//		MF[i].mf_cols = *((uint32_t*) (Mat_Format + 36));		// 변수의 열 크기값 저장
-//
-//		if(MF[i].mf_classType == mxSINGLE){}
-//		// 데이터가 잘못된 값이면 모든 동작을 멈춘다.(무한 루프)
-//		else {
-//			GPIOD->BSRR |= GPIO_BSRR_BS13;
-//			while (1) ;
-//		}
-//
-//		pbuffer = MFbuffer + MF[i].mf_sector_index + MF_index;	// 포인터값을 이용해서 이후 값을 저장한다. (시작 인덱스 값과 정해진 MF값이 끝나는 값으로 초기 위치를 정함.)
-//
-//		name_len = *((uint16_t*) (pbuffer + 0x02));		// 변수 길이가 16bit라고 가정한다.
-//
-//		// 만약에 변수 길이가 잡히지 않는다면, 변수 크기가 32bit일 것으로 (변수명의 길이가 큰 경우 32bit로 저장됨.) 가정한다.
-//		if (name_len == 0) {
-//			DataType[3] = *((uint32_t*) pbuffer);		// MF의 해당 부분은 Array Name으로 반드시 miINT8값이 있어야 한다.
-//			name_len = *((uint32_t*) (pbuffer + 0x04));	// 변수 길이가 32bit일 것으로 값을 다시 저장한다.
-//			pbuffer += 0x08;							// pbuffer에 변수 길이와 DataType 이후 값으로 값을 업데이트 해준다.
-//		}
-//		// 변수명 길이가 16bit가 맞다면, 그대로 진행시킨다.
-//		else {
-//			DataType[3] = *((uint16_t*) pbuffer);		// 이 때는 MF의 해당 부분은 Array Name으로 반드시 miINT8값이 있어야 하며, 16bit의 공간을 사용한다.
-//			pbuffer += 0x04;							// pbuffer에 변수 길이와 DataType 이후 값으로 값을 업데이트 해준다.
-//		}
-//
-//		// DataType이 제대로 된 값이라면, 다음 일을 수행한다.
-//		if (DataType[3] == miINT8) {
-//			MF[i].mf_name_len = name_len;				// 최종 변수명 크기를 저장한다.
-//			memcpy(MF[i].mf_name, pbuffer, name_len);	// 변수명을 저장한다.
-//		}
-//		// DataType이 값이 잘못된 값이면 모든 동작을 멈춘다.(무한 루프)
-//		else {
-//			GPIOD->BSRR |= GPIO_BSRR_BS13;
-//			while (1) ;
-//		}
-//
-//		// 변수명을 읽을 때, 이름의 길이에 따라 생기는 빈칸의 수가 다르다. 이 값을 보상해주기 위해 이 작업이 필요하다.
-//		// 변수명이 4byte 단위로 끊어진다면, pbuffer에 변수명 크기 그대로 값을 밀면 된다.
-//		if (name_len % 4 == 0)
-//			pbuffer += name_len;
-//		// 변수명이 4byte 단위가 아니라면, 빈칸을 채워야한다.
-//		else {
-//			// 문자가 8byte 이하라면, 다음의 조건을 이용하여 pbuffer에 값을 업데이트한다.
-//			if (name_len < 8)
-//				pbuffer += name_len + (4 - name_len % 4);
-//			// 문자가 8byte 이상이라면, 다음의 조건을 이용하여 pbuffer에 값을 업데이트한다.
-//			else
-//				pbuffer += name_len + (8 - name_len % 8);
-//		}
-//
-//
-//		data_len = *((uint16_t*) (pbuffer + 0x02));		// 변수 길이가 16bit라고 가정한다.
-//
-//		// 만약에 변수 길이가 잡히지 않는다면, 변수 크기가 32bit일 것으로 (변수명의 길이가 큰 경우 32bit로 저장됨.) 가정한다.
-//		if (data_len == 0) {
-//			DataType[4] = *((uint32_t*) pbuffer);		// MF의 해당 부분은 변수의 Real part으로 저장형식을 맞췄다면 반드시 miSINGLE값이 있어야 한다.
-//			data_len = *((uint32_t*) (pbuffer + 0x04)); // 변수 길이가 32bit일 것으로 값을 다시 저장한다.
-//			pbuffer += 0x08;							// pbuffer에 변수 길이와 DataType 이후 값으로 값을 업데이트 해준다.
-//		}
-//		// 변수명 길이가 16bit가 맞다면, 그대로 진행시킨다.
-//		else {
-//			DataType[4] = *((uint16_t*) pbuffer);		// 이 때는 MF의 해당 부분은 변수의 Real part으로 저장형식을 맞췄다면 반드시 miSINGLE값이 있어야 하며, 16bit의 공간을 사용한다.
-//			pbuffer += 0x04;							// pbuffer에 변수 길이와 DataType 이후 값으로 값을 업데이트 해준다.
-//		}
-//
-//		// DataType이 제대로 된 값이라면, 다음 일을 수행한다.
-//		if (DataType[4] == miSINGLE) {
-//			MF[i].mf_data_len = data_len;				// 최종 변수명 크기를 저장한다.
-//		}
-//		// DataType이 값이 잘못된 값이면 모든 동작을 멈춘다.(무한 루프)
-//		else {
-//			GPIOD->BSRR |= GPIO_BSRR_BS13;
-//			while (1) ;
-//		}
-//
-//		MF[i].mf_data_index = pbuffer - MFbuffer; 		// 마지막으로 데이터가 시작되는 순서값을 저장한다.
-//
-//		nextMF = MF[i].mf_sector_index + MF[i].mf_len;	// 다음 변수가 있는 곳은 현재 데이터가 있는 index에서 데이터의 총 길이를 더한값을 이용한다.
-//		nextMF_index = nextMF % BYTES_PER_SECTOR;		// 512의 나머지로 시작 지점의 인덱스를 찾아 저장한다.
-//		nextMF_sector = MF[i].mf_sector + nextMF / BYTES_PER_SECTOR; // 현재 sector에서 512로 나는 몫을 더해 다음 변수의 위치를 저장한다.
-//
-//		// 다음 MFbuffer를 채워준다.
-//		SD_read_sector(nextMF_sector, SDbuffer);
-//		memcpy(MFbuffer, SDbuffer, sizeof(SDbuffer));
-//		SD_read_sector(nextMF_sector + 1, SDbuffer);
-//		memcpy(MFbuffer + BYTES_PER_SECTOR, SDbuffer, sizeof(SDbuffer));
-//
-//		// 다음 변수의 고정된 40byte의 형식을 미리 저장한다.
-//		pbuffer = MFbuffer + nextMF_index;
-//		memcpy(Mat_Format, pbuffer, sizeof(Mat_Format));
-//	}// 이 과정이 끝나면, 모든 변수를 읽어온 상태이다.
-//
-//
-//	// 변수명이 맞는지 확인하기
-//	// ASCII code의 빠른 순으로 정렬되는 듯 함.
-//	// 이름순을 정렬되기 때문에, MF 순서에 맞는 mat 변수가 고정되어있음.
-//	// 제어 설계자가 필요에 의해서 다른 변수명을 사용했다면, 그것에 맞게 바꿔주어야한다.
-//	// 그리고 바꾸는기준은 ASCII code의 이름순이라는 것을 명심해야 한다.
-//	// 혹시나 mat 변수의 수가 늘었다면 MF의 개수 자체도 늘려야한다.
-//	if (strcmp(MF[0].mf_name, "K_LQ_mat")
-//			|| strcmp(MF[1].mf_name, "K_mat")
-//			|| strcmp(MF[2].mf_name, "control_mat")
-//			|| strcmp(MF[3].mf_name, "state_mat")
-//			|| strcmp(MF[4].mf_name, "time_mat")) {
-//		GPIOD->BSRR |= GPIO_BSRR_BS13;
-//		while (1) ; // 미리 선정한 이름과 다르다면 무한 루프에 빠진다.
-//	}
-//
-//	// 각각에 변수의 크기가 맞는지 확인한다.
-//	// K_LQ_mat 	-> 시불변 LQ gain이 들어있는 변수로 1xn의 값을 갖는다. (여기서 n은 상태변수와 EP수의 곱)
-//	// K_mat		-> feedforward의 궤적을 보상하는 시변 LQ gain값으로 nxm의 값을 갖는다. (여기서 n은 저장된 node 개수, m은 상태변수와 천이가능한 궤적수의 곱)
-//	// control_mat	-> feedforward의 입력 궤적으로 nxm의 값을 갖는다. (여기서 n은 저장된 node 개수, m은 천이가능한 궤적수의 수)
-//	// state_mat	-> feedforward의 상태 궤적으로 nxm의 값을 갖는다. (여기서 n은 저장된 node 개수, m은 상태변수와 천이가능한 궤적수의 곱)
-//	// time_mat		-> feedforward의 궤적 시간으로 nxm의 값을 갖는다. (여기서 n은 저장된 node 개수, m은 천이가능한 궤적수의 수)
-//	if (!(MF[0].mf_rows == 1 && MF[0].mf_cols == DIP_state_cnt * DIP_EP_cnt
-//			&& MF[1].mf_rows == DIP_point_cnt && MF[1].mf_cols == DIP_trans_cnt * DIP_state_cnt
-//			&& MF[2].mf_rows == DIP_point_cnt && MF[2].mf_cols == DIP_trans_cnt
-//			&& MF[3].mf_rows == DIP_point_cnt && MF[3].mf_cols == DIP_trans_cnt * DIP_state_cnt
-//			&& MF[4].mf_rows == DIP_point_cnt && MF[4].mf_cols == DIP_trans_cnt)) {
-//		GPIOD->BSRR |= GPIO_BSRR_BS13;
-//		while (1) ;// 미리 선정한 깂과 다르다면 무한 루프에 빠진다.
-//	}
-//
-//	// 시불변 K_LQ_mat의 값을 읽어 EPnK값에 저장한다.
-//	// 시변 값들은 선택된 궤적에 따라 바뀌지만, 이 값은 처음부터 받아온 값을 계속 사용한다.
-//	Get_EPnK_param(EPnK);
+	// 돌입 전류를 막고자 시작 전 1초간 여유를 주기 위함.
+	DWT_ms_Delay(1000);
+	total_file = fatGetDirEntry(FirstDirCluster); 			// 파일 수 확인
+
+	// SD카드 파일들의 시작 sector값을 저장한다.
+	for (int i = 0; i < total_file; i++) SD_start_sector[i] = fatClustToSect(file_start_cluster[i]);
+	// 백업파일에 초기값 저장.
+	memcpy(SD_backup_sector, SD_start_sector, sizeof(SD_start_sector));
+
+	// SD카드 제목 출력
+	for (int i = 0; i < total_file; i++) {
+		uint8_t file_flag;		// 파일 이름에 따라 포맷형식 확인.
+		bool name_flag = false;	// 이름 일치 여부 확인.
+
+		// 파일명을 저장할 변수값을 초기화 시켜줌
+		for (int j = 0; j < name_max; j++)
+			file_name[j] = 0;
+
+		// 파일을 하나 선택한다!
+		file_flag = Get_long_filename(i);	// check file name
+
+		// 그 이름이 짧으면 0, 길면 1
+		if (file_flag == 0)					// short file name(8.3 format)
+			Save_short_filename();
+
+		// 이름이 길면 이 방식을 이용한다.
+		else if (file_flag == 1)			// long file name
+			Save_long_filename();
+
+		else if (file_flag == 2) {	// file name is longer than 195 characters
+		}
+		else {			// file name error
+		}
+
+		for (int j = 0; j < sizeof(tmp_name); j++){
+			name_flag = true;
+			if(file_name[j] != tmp_name[j]) // 파일명이 다르면 끝낸다.
+				{
+					name_flag = false;
+					break;
+				}
+		}
+
+		if (name_flag) file_number = i;
+
+		DWT_us_Delay(100); // 약간의 기다림이 필요한 것 같다.
+	}
+
+	// 파일의 마지막 섹터를 저장하기.
+	for (int i = 0; i < total_file; i++) SD_end_sector[i] = (file_size[i] >> 9) + SD_start_sector[i];
+
+	// mat 파일의 기본 파일 데이터 가져오기
+	SD_read_sector(SD_start_sector[file_number], SDbuffer); // MatFile의 가장 첫 데이터 512Byte 읽기
+	memcpy(Mat_Info, SDbuffer, sizeof(Mat_Info));			// MatFile의 기본 정보를 저장한다.
+	memcpy(MFbuffer, SDbuffer, sizeof(SDbuffer));			// MFbuffer에도 초기 값을 저장.
+
+	pbuffer = SDbuffer + sizeof(Mat_Info); 					// pbuffer 버퍼는 MatFile 기본정보 이후부터 시작한다.
+	memcpy(Mat_Format, pbuffer, sizeof(Mat_Format));		// 첫 번째 변수 Format을 저장한다.
+
+	for (int i = 0; i < 5; i++) {
+		uint32_t DataType[5] = { }; // 올바른 데이터인지 확인하기 위한 5개의 DataType
+		uint32_t name_len;			// name 길이값
+		uint32_t data_len;			// data 길이값
+
+		// MF의 해당위치에 반드시 들어가야하는 dataTye 수신
+		DataType[0] = *((uint32_t*) (Mat_Format));		// MF의 가장 첫 부분에는 miMATRIX값이 있어야 한다. 없다면 mat 파일을 저장할 때 압축형식으로 되었을 확률이 크다.
+		DataType[1] = *((uint32_t*) (Mat_Format + 8));	// MF의 해당 부분은 Array Flags로 반드시 miUINT32값이 있어야 한다.
+		DataType[2] = *((uint32_t*) (Mat_Format + 24));	// MF의 해당 부분은 Dimensions Array로 반드시 miINT32값이 있어야 한다.
+
+		// 모든 데이터가 정상일 때 동작.
+		if (DataType[0] == miMATRIX && DataType[1] == miUINT32 && DataType[2] == miINT32) {}
+		// 데이터가 잘못된 값이면 모든 동작을 멈춘다.(무한 루프)
+		else {
+			GPIOD->BSRR |= GPIO_BSRR_BS13;
+			while (1) ;
+		}
+
+		// 가장 첫번째로 수신한 경우 이미 값을 받아왔기 때문에, 예외처리를 한다.
+		if (i == 0) {
+			MF[i].mf_sector = SD_start_sector[file_number]; // MF의 초기값을 그대로 섹터값으로 저장한다.
+			MF[i].mf_sector_index = 0x80;					// MF의 시작 위치를 저장한다.
+		}
+		// 첫 번쨰가 아니라면, 마지막 단계에서 값을 업데이트한다. 따라서 그 값을 그대로 사용한다.
+		else {
+			MF[i].mf_sector = nextMF_sector;				// MF의 섹터값을 저장한다.
+			MF[i].mf_sector_index = nextMF_index;			// MF의 시작 위치를 저장한다.
+		}
+
+		// 이후 MF에서 필요한 데이터를 알맞게 저장한다.
+		MF[i].mf_len = *((uint32_t*) (Mat_Format + 4)) + 8; 	// 해당하는 변수값의 총 데이터를 포함한 크기를 저장한다. 그리고 시작부분도 포함하기 위해 8 byte를 더해준다.
+		MF[i].mf_classType = *((uint32_t*) (Mat_Format + 16));	// 데이터 저장 형식이 SINGLE인지, DOUBLE인지 확인 (Classes 0x07 -> SIGNLE, 0x06 -> DOUBLE)
+		MF[i].mf_rows = *((uint32_t*) (Mat_Format + 32));		// 변수의 행 크기값 저장
+		MF[i].mf_cols = *((uint32_t*) (Mat_Format + 36));		// 변수의 열 크기값 저장
+
+		if(MF[i].mf_classType == mxSINGLE){}
+		// 데이터가 잘못된 값이면 모든 동작을 멈춘다.(무한 루프)
+		else {
+			GPIOD->BSRR |= GPIO_BSRR_BS13;
+			while (1) ;
+		}
+
+		pbuffer = MFbuffer + MF[i].mf_sector_index + MF_index;	// 포인터값을 이용해서 이후 값을 저장한다. (시작 인덱스 값과 정해진 MF값이 끝나는 값으로 초기 위치를 정함.)
+
+		name_len = *((uint16_t*) (pbuffer + 0x02));		// 변수 길이가 16bit라고 가정한다.
+
+		// 만약에 변수 길이가 잡히지 않는다면, 변수 크기가 32bit일 것으로 (변수명의 길이가 큰 경우 32bit로 저장됨.) 가정한다.
+		if (name_len == 0) {
+			DataType[3] = *((uint32_t*) pbuffer);		// MF의 해당 부분은 Array Name으로 반드시 miINT8값이 있어야 한다.
+			name_len = *((uint32_t*) (pbuffer + 0x04));	// 변수 길이가 32bit일 것으로 값을 다시 저장한다.
+			pbuffer += 0x08;							// pbuffer에 변수 길이와 DataType 이후 값으로 값을 업데이트 해준다.
+		}
+		// 변수명 길이가 16bit가 맞다면, 그대로 진행시킨다.
+		else {
+			DataType[3] = *((uint16_t*) pbuffer);		// 이 때는 MF의 해당 부분은 Array Name으로 반드시 miINT8값이 있어야 하며, 16bit의 공간을 사용한다.
+			pbuffer += 0x04;							// pbuffer에 변수 길이와 DataType 이후 값으로 값을 업데이트 해준다.
+		}
+
+		// DataType이 제대로 된 값이라면, 다음 일을 수행한다.
+		if (DataType[3] == miINT8) {
+			MF[i].mf_name_len = name_len;				// 최종 변수명 크기를 저장한다.
+			memcpy(MF[i].mf_name, pbuffer, name_len);	// 변수명을 저장한다.
+		}
+		// DataType이 값이 잘못된 값이면 모든 동작을 멈춘다.(무한 루프)
+		else {
+			GPIOD->BSRR |= GPIO_BSRR_BS13;
+			while (1) ;
+		}
+
+		// 변수명을 읽을 때, 이름의 길이에 따라 생기는 빈칸의 수가 다르다. 이 값을 보상해주기 위해 이 작업이 필요하다.
+		// 변수명이 4byte 단위로 끊어진다면, pbuffer에 변수명 크기 그대로 값을 밀면 된다.
+		if (name_len % 4 == 0)
+			pbuffer += name_len;
+		// 변수명이 4byte 단위가 아니라면, 빈칸을 채워야한다.
+		else {
+			// 문자가 8byte 이하라면, 다음의 조건을 이용하여 pbuffer에 값을 업데이트한다.
+			if (name_len < 8)
+				pbuffer += name_len + (4 - name_len % 4);
+			// 문자가 8byte 이상이라면, 다음의 조건을 이용하여 pbuffer에 값을 업데이트한다.
+			else
+				pbuffer += name_len + (8 - name_len % 8);
+		}
+
+
+		data_len = *((uint16_t*) (pbuffer + 0x02));		// 변수 길이가 16bit라고 가정한다.
+
+		// 만약에 변수 길이가 잡히지 않는다면, 변수 크기가 32bit일 것으로 (변수명의 길이가 큰 경우 32bit로 저장됨.) 가정한다.
+		if (data_len == 0) {
+			DataType[4] = *((uint32_t*) pbuffer);		// MF의 해당 부분은 변수의 Real part으로 저장형식을 맞췄다면 반드시 miSINGLE값이 있어야 한다.
+			data_len = *((uint32_t*) (pbuffer + 0x04)); // 변수 길이가 32bit일 것으로 값을 다시 저장한다.
+			pbuffer += 0x08;							// pbuffer에 변수 길이와 DataType 이후 값으로 값을 업데이트 해준다.
+		}
+		// 변수명 길이가 16bit가 맞다면, 그대로 진행시킨다.
+		else {
+			DataType[4] = *((uint16_t*) pbuffer);		// 이 때는 MF의 해당 부분은 변수의 Real part으로 저장형식을 맞췄다면 반드시 miSINGLE값이 있어야 하며, 16bit의 공간을 사용한다.
+			pbuffer += 0x04;							// pbuffer에 변수 길이와 DataType 이후 값으로 값을 업데이트 해준다.
+		}
+
+		// DataType이 제대로 된 값이라면, 다음 일을 수행한다.
+		if (DataType[4] == miSINGLE) {
+			MF[i].mf_data_len = data_len;				// 최종 변수명 크기를 저장한다.
+		}
+		// DataType이 값이 잘못된 값이면 모든 동작을 멈춘다.(무한 루프)
+		else {
+			GPIOD->BSRR |= GPIO_BSRR_BS13;
+			while (1) ;
+		}
+
+		MF[i].mf_data_index = pbuffer - MFbuffer; 		// 마지막으로 데이터가 시작되는 순서값을 저장한다.
+
+		nextMF = MF[i].mf_sector_index + MF[i].mf_len;	// 다음 변수가 있는 곳은 현재 데이터가 있는 index에서 데이터의 총 길이를 더한값을 이용한다.
+		nextMF_index = nextMF % BYTES_PER_SECTOR;		// 512의 나머지로 시작 지점의 인덱스를 찾아 저장한다.
+		nextMF_sector = MF[i].mf_sector + nextMF / BYTES_PER_SECTOR; // 현재 sector에서 512로 나는 몫을 더해 다음 변수의 위치를 저장한다.
+
+		// 다음 MFbuffer를 채워준다.
+		SD_read_sector(nextMF_sector, SDbuffer);
+		memcpy(MFbuffer, SDbuffer, sizeof(SDbuffer));
+		SD_read_sector(nextMF_sector + 1, SDbuffer);
+		memcpy(MFbuffer + BYTES_PER_SECTOR, SDbuffer, sizeof(SDbuffer));
+
+		// 다음 변수의 고정된 40byte의 형식을 미리 저장한다.
+		pbuffer = MFbuffer + nextMF_index;
+		memcpy(Mat_Format, pbuffer, sizeof(Mat_Format));
+	}// 이 과정이 끝나면, 모든 변수를 읽어온 상태이다.
+
+
+	// 변수명이 맞는지 확인하기
+	// ASCII code의 빠른 순으로 정렬되는 듯 함.
+	// 이름순을 정렬되기 때문에, MF 순서에 맞는 mat 변수가 고정되어있음.
+	// 제어 설계자가 필요에 의해서 다른 변수명을 사용했다면, 그것에 맞게 바꿔주어야한다.
+	// 그리고 바꾸는기준은 ASCII code의 이름순이라는 것을 명심해야 한다.
+	// 혹시나 mat 변수의 수가 늘었다면 MF의 개수 자체도 늘려야한다.
+	if (strcmp(MF[0].mf_name, "K_LQ_mat")
+			|| strcmp(MF[1].mf_name, "K_mat")
+			|| strcmp(MF[2].mf_name, "control_mat")
+			|| strcmp(MF[3].mf_name, "state_mat")
+			|| strcmp(MF[4].mf_name, "time_mat")) {
+		GPIOD->BSRR |= GPIO_BSRR_BS13;
+		while (1) ; // 미리 선정한 이름과 다르다면 무한 루프에 빠진다.
+	}
+
+	// 각각에 변수의 크기가 맞는지 확인한다.
+	// K_LQ_mat 	-> 시불변 LQ gain이 들어있는 변수로 1xn의 값을 갖는다. (여기서 n은 상태변수와 EP수의 곱)
+	// K_mat		-> feedforward의 궤적을 보상하는 시변 LQ gain값으로 nxm의 값을 갖는다. (여기서 n은 저장된 node 개수, m은 상태변수와 천이가능한 궤적수의 곱)
+	// control_mat	-> feedforward의 입력 궤적으로 nxm의 값을 갖는다. (여기서 n은 저장된 node 개수, m은 천이가능한 궤적수의 수)
+	// state_mat	-> feedforward의 상태 궤적으로 nxm의 값을 갖는다. (여기서 n은 저장된 node 개수, m은 상태변수와 천이가능한 궤적수의 곱)
+	// time_mat		-> feedforward의 궤적 시간으로 nxm의 값을 갖는다. (여기서 n은 저장된 node 개수, m은 천이가능한 궤적수의 수)
+	if (!(MF[0].mf_rows == 1 && MF[0].mf_cols == DIP_state_cnt * DIP_EP_cnt
+			&& MF[1].mf_rows == DIP_point_cnt && MF[1].mf_cols == DIP_trans_cnt * DIP_state_cnt
+			&& MF[2].mf_rows == DIP_point_cnt && MF[2].mf_cols == DIP_trans_cnt
+			&& MF[3].mf_rows == DIP_point_cnt && MF[3].mf_cols == DIP_trans_cnt * DIP_state_cnt
+			&& MF[4].mf_rows == DIP_point_cnt && MF[4].mf_cols == DIP_trans_cnt)) {
+		GPIOD->BSRR |= GPIO_BSRR_BS13;
+		while (1) ;// 미리 선정한 깂과 다르다면 무한 루프에 빠진다.
+	}
+
+	// 시불변 K_LQ_mat의 값을 읽어 EPnK값에 저장한다.
+	// 시변 값들은 선택된 궤적에 따라 바뀌지만, 이 값은 처음부터 받아온 값을 계속 사용한다.
+	Get_EPnK_param(EPnK);
 
 	// loop 시간에 관한 설정으로 천이 제어 자체는 타이머 인터럽트로 진행중이기 때문에,
 	// 메인 loop의 시간을 너무 빠르게 할 필요는 없다.
@@ -810,180 +810,177 @@ int main(void) {
 		// 또한 천이 중이 아닌경우에만 실행. (!tr_flag)
 		// mode는 EP의 상태를 지정하는 변수, auto_flag는 Random의 종류를 선택하는 변수.
 		//
-//		if (!tr_flag) {
-//
-//			if (!(GPIOE->IDR & 0x01)) {			// SW1
-//				mode = 0;						// 원하는 다음 상태의 EP 번호
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				GPIOD->ODR |= 0x00001000;		// EP 번호에 맞는 LED ON
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x02)) {	// SW2
-//				mode = 1;						// 원하는 다음 상태의 EP 번호
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				GPIOD->ODR |= 0x00002000;		// EP 번호에 맞는 LED ON
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x04)) {	// SW3
-//				mode = 2;						// 원하는 다음 상태의 EP 번호
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				GPIOD->ODR |= 0x00004000;		// EP 번호에 맞는 LED ON
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x08)) {	// SW4
-//				mode = 3;						// 원하는 다음 상태의 EP 번호
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				GPIOD->ODR |= 0x00008000;		// EP 번호에 맞는 LED ON
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x10)) {	// SW5
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				auto_flag1 = true;				// Random pattern1 ON
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x20)) {	// SW6
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				auto_flag1 = false;
-//				auto_flag2 = true;				// Random pattern2 ON
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x40)) {	// SW7
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = true;				// Random pattern3 ON
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x80)) {	// SW8
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = true;				// Random pattern4 ON
-//			}
-//
-//			// Random pattern 선택시 다음의 조건문을 들어온다.
-//			if (auto_flag1 || auto_flag2 || auto_flag3 || auto_flag4) {
-//
-//				// 선형 구간에서 4초 이상 안정적인 상태일 때 동작하도록 설계
-//				if (time_L > 4) {
-//
-//					// Random pattern1
-//					// 12가지 천이궤적을 모두 천이하는 궤적
-//					// 천이순서는 다음과 같음.
-//					// 1->2->3->2->1->3->1->0->2->0->3->0-> ...
-//					if (auto_flag1) {
-//						// 12가지 패턴이 끝나면 0으로 초기화
-//						if (p_i >= 12)
-//							p_i = 0;
-//						// 현재 모드에 맞는 값으로 들어감.
-//						mode = pattern1[p_i];
-//					}
-//
-//					// Random pattern2
-//					// 6가지 천이궤적을 모두 천이하는 궤적
-//					// 천이순서는 다음과 같음.
-//					// 1->2->3->2->1->0->...
-//					if (auto_flag2) {
-//						// 6가지 패턴이 끝나면 0으로 초기화
-//						if (p_i >= 6)
-//							p_i = 0;
-//						// 현재 모드에 맞는 값으로 들어감.
-//						mode = pattern2[p_i];
-//					}
-//
-//					// Random pattern3
-//					// 6가지 천이궤적을 모두 천이하는 궤적
-//					// 천이순서는 다음과 같음.
-//					// 3->0->2->0->1->0-> ...
-//					if (auto_flag3) {
-//						// 6가지 패턴이 끝나면 0으로 초기화
-//						if (p_i >= 6)
-//							p_i = 0;
-//						// 현재 모드에 맞는 값으로 들어감.
-//						mode = pattern3[p_i];
-//					}
-//
-//					// Random pattern4
-//					// 2가지 천이궤적을 모두 천이하는 궤적
-//					// 천이순서는 다음과 같음.
-//					// 3->0-> ...
-//					if (auto_flag4) {
-//						// 2가지 패턴이 끝나면 0으로 초기화
-//						if (p_i >= 2)
-//							p_i = 0;
-//						// 현재 모드에 맞는 값으로 들어감.
-//						mode = pattern4[p_i];
-//					}
-//
-//					GPIOD->ODR &= ~0x0000F000;			// LED 초기화
-//					GPIOD->ODR |= (0x00001000 << mode); // 현재 모드에 맞는 LED에 불이 켜짐.
-//					p_i++;								// 패턴 index의 값을 증가시킴.
-//				}
-//			}
-//			// Random pattern이 아닐 경우,
-//			else
-//				p_i = 0;			// Pattern index 초기화
-//
-//			DWT_us_Delay(100);
-//
-//			// 2-DOF m값 연산
-//			//   \   0   1   2   3   (start)
-//			//       ---------------
-//			//   0|  x   4   7  10
-//			//   1|  1   x   8  11
-//			//   2|  2   5   x  12
-//			//   3|  3   6   9   x
-//			// (end)
-//			//
-//			// 위 표를 참고하여, 다음과 같은 식을 이용하면,
-//			// 현재 EP(mode)와 과거 EP(mode_p)를 이용해서 궤적의 종류(m)을 구할 수 있음.
-//			// 이는 현재 EP와 과거 EP가 다른 순간에만 진행되며, 그 때 천이 상태가 아니어야 함.
-//			// 현재 상태가 과거 상태와 다를 떄만 동작, 가장 초기단계에서 mode와 mode_p가 0으로 초기화 되어있다.
-//			if (mode != mode_p) {
-//				// 이 연산 과정은 EP의 과거값과 현재값을 이용하면, 다음과 같은 식으로 m값을 쉽게 구할 수 있다.
-//				// 다음의 과정은 위의 표를 참고하면 쉽게 이해할 수 있다.
-//				if (mode_p < mode)
-//					m = 3 * mode_p + mode;
-//				else
-//					m = 3 * mode_p + mode + 1;
-//
-//				// SD카드에서 m값에 맞는 feedforward 천이궤적을 가져옴.
-//				Get_Transition_param(TRnnt, TRnnu, TRnnx, TRnnK, m);
-//
-//				// feedforward 상태 궤적의 가장 마지막 수렴점을 미리 받는다.
-//				// 이는 선형제어 시 수렴값을 선정하기 위함.
-//				for (int i = 0; i < DIP_state_cnt; i++)
-//					EPnx_end[i] = TRnnx[DIP_point_cnt-1][i];
-//
-//				// 이후 과거값을 저장한다.
-//				mode_p = mode;
-//				m_p = m;
-//
-//				time_ff = time_r; 	// 궤적을 가져온 직후의 simulation time을 가져와서 feedforwawrd 시작 지점으로 선정한다.
-//				tr_flag = true;		// 모든 값을 수정했다면, 천이를 진행한다.(시간 설정 이후에 바로 천이를 시작해야 오류가 나지 않는다. 이 사이에는 절대 아무 코드도 넣으면 안된다.)
-//
-//			}
-//		}
-//
+		if (!tr_flag) {
 
+			if (!(GPIOE->IDR & 0x01)) {			// SW1
+				mode = 0;						// 원하는 다음 상태의 EP 번호
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				GPIOD->ODR |= 0x00001000;		// EP 번호에 맞는 LED ON
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
 
-//		sprintf(str, "%d\n",clock_diff);
+			} else if (!(GPIOE->IDR & 0x02)) {	// SW2
+				mode = 1;						// 원하는 다음 상태의 EP 번호
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				GPIOD->ODR |= 0x00002000;		// EP 번호에 맞는 LED ON
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x04)) {	// SW3
+				mode = 2;						// 원하는 다음 상태의 EP 번호
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				GPIOD->ODR |= 0x00004000;		// EP 번호에 맞는 LED ON
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x08)) {	// SW4
+				mode = 3;						// 원하는 다음 상태의 EP 번호
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				GPIOD->ODR |= 0x00008000;		// EP 번호에 맞는 LED ON
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x10)) {	// SW5
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				auto_flag1 = true;				// Random pattern1 ON
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x20)) {	// SW6
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				auto_flag1 = false;
+				auto_flag2 = true;				// Random pattern2 ON
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x40)) {	// SW7
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = true;				// Random pattern3 ON
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x80)) {	// SW8
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = true;				// Random pattern4 ON
+			}
+
+			// Random pattern 선택시 다음의 조건문을 들어온다.
+			if (auto_flag1 || auto_flag2 || auto_flag3 || auto_flag4) {
+
+				// 선형 구간에서 4초 이상 안정적인 상태일 때 동작하도록 설계
+				if (time_L > 4) {
+
+					// Random pattern1
+					// 12가지 천이궤적을 모두 천이하는 궤적
+					// 천이순서는 다음과 같음.
+					// 1->2->3->2->1->3->1->0->2->0->3->0-> ...
+					if (auto_flag1) {
+						// 12가지 패턴이 끝나면 0으로 초기화
+						if (p_i >= 12)
+							p_i = 0;
+						// 현재 모드에 맞는 값으로 들어감.
+						mode = pattern1[p_i];
+					}
+
+					// Random pattern2
+					// 6가지 천이궤적을 모두 천이하는 궤적
+					// 천이순서는 다음과 같음.
+					// 1->2->3->2->1->0->...
+					if (auto_flag2) {
+						// 6가지 패턴이 끝나면 0으로 초기화
+						if (p_i >= 6)
+							p_i = 0;
+						// 현재 모드에 맞는 값으로 들어감.
+						mode = pattern2[p_i];
+					}
+
+					// Random pattern3
+					// 6가지 천이궤적을 모두 천이하는 궤적
+					// 천이순서는 다음과 같음.
+					// 3->0->2->0->1->0-> ...
+					if (auto_flag3) {
+						// 6가지 패턴이 끝나면 0으로 초기화
+						if (p_i >= 6)
+							p_i = 0;
+						// 현재 모드에 맞는 값으로 들어감.
+						mode = pattern3[p_i];
+					}
+
+					// Random pattern4
+					// 2가지 천이궤적을 모두 천이하는 궤적
+					// 천이순서는 다음과 같음.
+					// 3->0-> ...
+					if (auto_flag4) {
+						// 2가지 패턴이 끝나면 0으로 초기화
+						if (p_i >= 2)
+							p_i = 0;
+						// 현재 모드에 맞는 값으로 들어감.
+						mode = pattern4[p_i];
+					}
+
+					GPIOD->ODR &= ~0x0000F000;			// LED 초기화
+					GPIOD->ODR |= (0x00001000 << mode); // 현재 모드에 맞는 LED에 불이 켜짐.
+					p_i++;								// 패턴 index의 값을 증가시킴.
+				}
+			}
+			// Random pattern이 아닐 경우,
+			else
+				p_i = 0;			// Pattern index 초기화
+
+			DWT_us_Delay(100);
+
+			// 2-DOF m값 연산
+			//   \   0   1   2   3   (start)
+			//       ---------------
+			//   0|  x   4   7  10
+			//   1|  1   x   8  11
+			//   2|  2   5   x  12
+			//   3|  3   6   9   x
+			// (end)
+			//
+			// 위 표를 참고하여, 다음과 같은 식을 이용하면,
+			// 현재 EP(mode)와 과거 EP(mode_p)를 이용해서 궤적의 종류(m)을 구할 수 있음.
+			// 이는 현재 EP와 과거 EP가 다른 순간에만 진행되며, 그 때 천이 상태가 아니어야 함.
+			// 현재 상태가 과거 상태와 다를 떄만 동작, 가장 초기단계에서 mode와 mode_p가 0으로 초기화 되어있다.
+			if (mode != mode_p) {
+				// 이 연산 과정은 EP의 과거값과 현재값을 이용하면, 다음과 같은 식으로 m값을 쉽게 구할 수 있다.
+				// 다음의 과정은 위의 표를 참고하면 쉽게 이해할 수 있다.
+				if (mode_p < mode)
+					m = 3 * mode_p + mode;
+				else
+					m = 3 * mode_p + mode + 1;
+
+				// SD카드에서 m값에 맞는 feedforward 천이궤적을 가져옴.
+				Get_Transition_param(TRnnt, TRnnu, TRnnx, TRnnK, m);
+
+				// feedforward 상태 궤적의 가장 마지막 수렴점을 미리 받는다.
+				// 이는 선형제어 시 수렴값을 선정하기 위함.
+				for (int i = 0; i < DIP_state_cnt; i++)
+					EPnx_end[i] = TRnnx[DIP_point_cnt-1][i];
+
+				// 이후 과거값을 저장한다.
+				mode_p = mode;
+				m_p = m;
+
+				time_ff = time_r; 	// 궤적을 가져온 직후의 simulation time을 가져와서 feedforwawrd 시작 지점으로 선정한다.
+				tr_flag = true;		// 모든 값을 수정했다면, 천이를 진행한다.(시간 설정 이후에 바로 천이를 시작해야 오류가 나지 않는다. 이 사이에는 절대 아무 코드도 넣으면 안된다.)
+			}
+		}
+
+//		sprintf(str, "%.2f\n",d_theta1_mt);
 		sprintf(str, "%.2f %.2f\n", temp_d_theta1_mt, temp_d_theta1);
 		UsbPutString(str);
 //		TX3_PutString(str);
@@ -1003,18 +1000,19 @@ void TIM6_DAC_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s �
 {
 	if (TIM6->SR & TIM_SR_UIF) {
 		// encoder 값을 수신받아, 상태 변수값으로 변환하는 단계, 우리가 사용할 parameter로 변환
-//		enc1 = TIM2->CNT;
+		enc1 = TIM2->CNT;
 		enc2 = TIM3->CNT;
-//		enc3 = TIM4->CNT;
-
+		enc3 = TIM4->CNT;
+//		temp_d_theta1_mt = d_theta1_mt;
 		// encoder 값을 이용해서 상태변수값 생성
-//		cart_pos = (float) enc1 * enc1_to_pos;
+		cart_pos = (float) enc1 * enc1_to_pos;
 		theta1 = (float) enc2 * enc2_to_rad - PI;
-//		theta2 = (float) enc3 * enc3_to_rad;
-//		cart_vel = (float) (enc1 - enc1_p) * enc1_to_pos / sample_time;	// 속도값 계산
+		theta2 = (float) enc3 * enc3_to_rad;
+		cart_vel = (float) (enc1 - enc1_p) * enc1_to_pos / sample_time;	// 속도값 계산
 		d_theta1 = (float) (enc2 - enc2_p) * enc2_to_rad / sample_time;	// 각속도값 계산
-//		d_theta2 = (float) (enc3 - enc3_p) * enc3_to_rad / sample_time;	// 각속도값 계산
-//		cart_int += cart_pos * sample_time;
+//		d_theta1 = temp_d_theta1_mt;
+		d_theta2 = (float) (enc3 - enc3_p) * enc3_to_rad / sample_time;	// 각속도값 계산
+		cart_int += cart_pos * sample_time;
 
 		// 미분 계산을 위해 과거값 저장
 		enc1_p = enc1;
@@ -1022,114 +1020,114 @@ void TIM6_DAC_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s �
 		enc3_p = enc3;
 
 //		// 천이 신호가 있을 때, 천이 제어 시작하는 부분
-//		if (tr_flag) {
-//
-//			// 현재 시간이, 천이 시간보다 작다면 다음의 천이 부분을 수행한다.
-//			if (time_r <= TRnnt[DIP_point_cnt-1] + time_ff) {
-//				// 선형 보간을 통해 스윙업 궤적을 저장하는 부분으로, 각각 feedforward 상태변수, LQ보상, 입력변수를 업데이트한다.
-//				calculate_interpolation7(TRnnt, TRnnx, DIP_point_cnt, time_r - time_ff, FF_x);
-//				calculate_interpolation7(TRnnt, TRnnK, DIP_point_cnt, time_r - time_ff, FF_K);
-//				calculate_interpolation1(TRnnt, TRnnu, DIP_point_cnt, time_r - time_ff, &FF_u);
-//			}
-//			// 천이 시간이 넘어서면, tr_flag를 false시켜 천이를 종료한다.
-//			else
-//				tr_flag = false;
-//
-//			time_L = 0; // 선형 구간이 아니면, 값을 초기화 시킨다.
-//		}
-//		// 천이 신호가 없을 때, 선형 제어를 유지하는 부분이다.
-//		else {
-//			// 가장 처음에, 아무런 입럭을 주고 있지 않다면, EP0을 유지하는 선형 제어 부분이 필요하다.
-//			// m값을 그대로 사용하면, SD카드에서 값을 읽어올 때 m값을 사용하는데, 아직 SD카드의 값을 읽어오는 과정이므로, 문제가 생긴다.
-//			// 따라서 SD카드가 값을 다 읽기 전까지는 바닥상태를 유지하기 위해 과거값을 이용한다.
-//			if (m_p == 0) {
-//				// EP0은 theta1 부분만 -pi이므로 종단 값을 다음과 같이 표기했다.
-//				FF_x[1] = -PI;
-//				memcpy(FF_K, EPnK, sizeof(FF_K));
-//			}
-//			// 가장 초기값이 아니라면, 이 부분으로 넘어간다.
-//			else {
-//				// 종단값은 상태 변수의 마지막 값을 넣어준다.
-//				memcpy(FF_x, EPnx_end, sizeof(FF_x));
-//				// 시불변 LQ 게인값은 미리 저장해둔 값을 사용하며, EP값에 맞춰 따라서 사용한다.
-//				memcpy(FF_K, EPnK + DIP_state_cnt * mode_p, sizeof(FF_K));
-//			}
-//
-//			FF_u = 0;				// 선형 제어 부분에서 입력이 0으로 고정이다.
-//			time_L += sample_time; 	// 선형 구간으로 들어섰으니 시간을 체크한다.
-//		}
-//
-//		// feedforward 궤적과 실제값의 오차값을 미리 계산해주고, 진자각도는 -pi~pi 사이로 변환시켜 저장한다.
-//		err[0] = cart_pos - FF_x[0];
-//		err[1] = modulo(theta1 - FF_x[1]);
-//		err[2] = modulo(theta2 - FF_x[2]);
-//		err[3] = cart_vel - FF_x[3];
-//		err[4] = d_theta1 - FF_x[4];
-//		err[5] = d_theta2 - FF_x[5];
-//		err[6] = cart_int - FF_x[6];
-//
-//
-//		// 카트에 인가될 가속도값 계산
-//		cart_acc = FF_u; // 선행 입력 가속도를 미리 저장한다.
-//		// 이후 반복문을 통해 보상값을 합해서 식을 간단하게 만들어준다.
-//		// 반복문은 간단하다. 상태변수 개수만큼 반복하며, 각각의 오차값에 보상값을 곱해주는 것을 더한다.
-//		for (int i = 0; i < DIP_state_cnt; i++)
-//			cart_acc += FF_K[i] * err[i];
-//
-//		// 가속도 제한기
-//		if (cart_acc > 100.0)
-//			cart_acc = 100.0;
-//		else if (cart_acc < -100)
-//			cart_acc = -100.0;
-//
-//		// 가속도 값을 적분하여, 속도 지령치를 만들어준다.
-//		acc_int += cart_acc * sample_time;
-//
-//		// shut down 조건
-//		// 모든 연산과정이 끝난 이후 갑을 입력해주기 전에 경계값을 넘어서는 지령치가 존재한다면, 모든 과정을 멈춘다.
-//		// 이 과정에서 엔코더 값이 나오지 않는다면 큰 충돌이 나올 수 있으니 반드시 카트 엔코더가 이상이 없는지 먼저 확인해야한다.
-//		// 사용하는 DIP 플랜트에서 제약은 다음과 같다.
-//		// 1. cart 위치의 절댓값이 0.4m를 벗어났는지 확인
-//		// 2. cart 속도 지령치가 3m/s 이상의 빠른 속도를 요구하는지 확인
-//		if (fabs(cart_pos) > 0.4 || fabs(acc_int) > 3) {
-//			sd_flag = true;
-//			reset_flag = true;
-//		}
-//
-//		// 혹시 reset_flag가 활성화 되었다면, 속도 지령과 카트의 적분값을 초기화 시켜라.
-//		if (reset_flag) {
-//			acc_int = 0;
-//			cart_int = 0;
-//			// 초기화를 했다면, 다시 flag를 비활성화 시킨다.
-//			reset_flag = false;
-//		}
-//
-//		// shut down 상태가 되었을 때 모든 PWM 입력을 끄는 코드.
-//		if (sd_flag) {
-//
-//			GPIOD->ODR &= ~0x0000F000;
-////			TIM8->CCR3 = 0;
-//		}
-//		// 정상이라면, PWM을 입력하라.
-//		else{
-//			// PI 속도 제어부 (LPF는 사용하지 않음.)
-//			con_PI1.Ref = acc_int;		// 모터 레퍼런스 값에 우리가 추종해야 할 계산된 속도 지령치를 인가한다.
-//			con_PI1.V_Fdb = cart_vel;	// 연산에 필요한 현재 cart 속도를 피드백으로 넣어줌
-//			con_PI1.calc(&con_PI1);		// PI 제어를 수행함.
-//			volt = con_PI1.Out;			// PI 제어기를 통해 계산된 전압값을 입력 받음.
-//
-//			// 전압을 PWM 형태로 인가해주기위해 변환과정이 필요하며, 양의 방향일때와 음의 방향일 경우 Dir방향이 다름.
-//			if (volt * volt_to_duty > 0) {
-//				GPIOE->BSRR = GPIO_BSRR_BR8;		// Dir 정방향 설정
-////				TIM8->CCR3 = volt * volt_to_duty;	// 전압을 duty 형태로 변환해서 CCR값으로 입력
-//			}
-//			else {
-//				GPIOE->BSRR = GPIO_BSRR_BS8;		// Dir 역방향 설정
-////				TIM8->CCR3 = -volt * volt_to_duty;	// 전압을 duty 형태로 변환해서 CCR값으로 입력
-//			}
-//		}
-//
-//		time_r += sample_time; // 시간 누적
+		if (tr_flag) {
+
+			// 현재 시간이, 천이 시간보다 작다면 다음의 천이 부분을 수행한다.
+			if (time_r <= TRnnt[DIP_point_cnt-1] + time_ff) {
+				// 선형 보간을 통해 스윙업 궤적을 저장하는 부분으로, 각각 feedforward 상태변수, LQ보상, 입력변수를 업데이트한다.
+				calculate_interpolation7(TRnnt, TRnnx, DIP_point_cnt, time_r - time_ff, FF_x);
+				calculate_interpolation7(TRnnt, TRnnK, DIP_point_cnt, time_r - time_ff, FF_K);
+				calculate_interpolation1(TRnnt, TRnnu, DIP_point_cnt, time_r - time_ff, &FF_u);
+			}
+			// 천이 시간이 넘어서면, tr_flag를 false시켜 천이를 종료한다.
+			else
+				tr_flag = false;
+
+			time_L = 0; // 선형 구간이 아니면, 값을 초기화 시킨다.
+		}
+		// 천이 신호가 없을 때, 선형 제어를 유지하는 부분이다.
+		else {
+			// 가장 처음에, 아무런 입럭을 주고 있지 않다면, EP0을 유지하는 선형 제어 부분이 필요하다.
+			// m값을 그대로 사용하면, SD카드에서 값을 읽어올 때 m값을 사용하는데, 아직 SD카드의 값을 읽어오는 과정이므로, 문제가 생긴다.
+			// 따라서 SD카드가 값을 다 읽기 전까지는 바닥상태를 유지하기 위해 과거값을 이용한다.
+			if (m_p == 0) {
+				// EP0은 theta1 부분만 -pi이므로 종단 값을 다음과 같이 표기했다.
+				FF_x[1] = -PI;
+				memcpy(FF_K, EPnK, sizeof(FF_K));
+			}
+			// 가장 초기값이 아니라면, 이 부분으로 넘어간다.
+			else {
+				// 종단값은 상태 변수의 마지막 값을 넣어준다.
+				memcpy(FF_x, EPnx_end, sizeof(FF_x));
+				// 시불변 LQ 게인값은 미리 저장해둔 값을 사용하며, EP값에 맞춰 따라서 사용한다.
+				memcpy(FF_K, EPnK + DIP_state_cnt * mode_p, sizeof(FF_K));
+			}
+
+			FF_u = 0;				// 선형 제어 부분에서 입력이 0으로 고정이다.
+			time_L += sample_time; 	// 선형 구간으로 들어섰으니 시간을 체크한다.
+		}
+
+		// feedforward 궤적과 실제값의 오차값을 미리 계산해주고, 진자각도는 -pi~pi 사이로 변환시켜 저장한다.
+		err[0] = cart_pos - FF_x[0];
+		err[1] = modulo(theta1 - FF_x[1]);
+		err[2] = modulo(theta2 - FF_x[2]);
+		err[3] = cart_vel - FF_x[3];
+		err[4] = d_theta1 - FF_x[4];
+		err[5] = d_theta2 - FF_x[5];
+		err[6] = cart_int - FF_x[6];
+
+
+		// 카트에 인가될 가속도값 계산
+		cart_acc = FF_u; // 선행 입력 가속도를 미리 저장한다.
+		// 이후 반복문을 통해 보상값을 합해서 식을 간단하게 만들어준다.
+		// 반복문은 간단하다. 상태변수 개수만큼 반복하며, 각각의 오차값에 보상값을 곱해주는 것을 더한다.
+		for (int i = 0; i < DIP_state_cnt; i++)
+			cart_acc += FF_K[i] * err[i];
+
+		// 가속도 제한기
+		if (cart_acc > 100.0)
+			cart_acc = 100.0;
+		else if (cart_acc < -100)
+			cart_acc = -100.0;
+
+		// 가속도 값을 적분하여, 속도 지령치를 만들어준다.
+		acc_int += cart_acc * sample_time;
+
+		// shut down 조건
+		// 모든 연산과정이 끝난 이후 갑을 입력해주기 전에 경계값을 넘어서는 지령치가 존재한다면, 모든 과정을 멈춘다.
+		// 이 과정에서 엔코더 값이 나오지 않는다면 큰 충돌이 나올 수 있으니 반드시 카트 엔코더가 이상이 없는지 먼저 확인해야한다.
+		// 사용하는 DIP 플랜트에서 제약은 다음과 같다.
+		// 1. cart 위치의 절댓값이 0.4m를 벗어났는지 확인
+		// 2. cart 속도 지령치가 3m/s 이상의 빠른 속도를 요구하는지 확인
+		if (fabs(cart_pos) > 0.4 || fabs(acc_int) > 3) {
+			sd_flag = true;
+			reset_flag = true;
+		}
+
+		// 혹시 reset_flag가 활성화 되었다면, 속도 지령과 카트의 적분값을 초기화 시켜라.
+		if (reset_flag) {
+			acc_int = 0;
+			cart_int = 0;
+			// 초기화를 했다면, 다시 flag를 비활성화 시킨다.
+			reset_flag = false;
+		}
+
+		// shut down 상태가 되었을 때 모든 PWM 입력을 끄는 코드.
+		if (sd_flag) {
+
+			GPIOD->ODR &= ~0x0000F000;
+			TIM8->CCR3 = 0;
+		}
+		// 정상이라면, PWM을 입력하라.
+		else{
+			// PI 속도 제어부 (LPF는 사용하지 않음.)
+			con_PI1.Ref = acc_int;		// 모터 레퍼런스 값에 우리가 추종해야 할 계산된 속도 지령치를 인가한다.
+			con_PI1.V_Fdb = cart_vel;	// 연산에 필요한 현재 cart 속도를 피드백으로 넣어줌
+			con_PI1.calc(&con_PI1);		// PI 제어를 수행함.
+			volt = con_PI1.Out;			// PI 제어기를 통해 계산된 전압값을 입력 받음.
+
+			// 전압을 PWM 형태로 인가해주기위해 변환과정이 필요하며, 양의 방향일때와 음의 방향일 경우 Dir방향이 다름.
+			if (volt * volt_to_duty > 0) {
+				GPIOE->BSRR = GPIO_BSRR_BR8;		// Dir 정방향 설정
+				TIM8->CCR3 = volt * volt_to_duty;	// 전압을 duty 형태로 변환해서 CCR값으로 입력
+			}
+			else {
+				GPIOE->BSRR = GPIO_BSRR_BS8;		// Dir 역방향 설정
+				TIM8->CCR3 = -volt * volt_to_duty;	// 전압을 duty 형태로 변환해서 CCR값으로 입력
+			}
+		}
+
+		time_r += sample_time; // 시간 누적
 
 		TIM6->SR &= ~TIM_SR_UIF;		// Clear pending bit of TIM8 interrupt.
 	}
@@ -1378,7 +1376,7 @@ void Timer8_PWM_dir_Init() {
 
 	TIM8->CNT = 0;   // Counter를 0으로 clear
 
-	TIM8->CCR3 = 2100;  // 2100은 4200의 절반에 해당하는 값
+	TIM8->CCR3 = 0;  // 2100은 4200의 절반에 해당하는 값
 
 	TIM8->CR1 |= TIM_CR1_CEN;   // TIM1 enable.
 	TIM8->BDTR |= TIM_BDTR_MOE; // MOE=1 : Main output enable
