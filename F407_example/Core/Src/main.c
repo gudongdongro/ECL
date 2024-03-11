@@ -360,16 +360,16 @@ void Get_Transition_param(float t[DIP_point_cnt],			// 천이 종류에 맞는 �
 #define teeth 			38			// timing pully teeth 갯수 (2 [mm] 피치)
 #define motor_cpr 		20000		// motor encoder cpr
 #define pendulum1_cpr	8192		// pendulum1 encoder cpr
-#define pendulum2_cpr	4096		// pendulum2 encoder cpr -> 3단에서 분리해서 할때 8192로 바꿔야함
+#define pendulum2_cpr	8192		// pendulum2 encoder cpr -> 3단에서 분리해서 할때 8192로 바꿔야함
 #define MaxV 			24      	// 인가 전압 맥스값 24 [V]
-#define KP 				16.3470	 	// 모터제어에 사용되는 Kp값 -> 3단에서 분리해서 할때 16.0080로 바꿔야함
-#define KI 				377.0838	// 모터제어에 사용되는 Ki값 -> 3단에서 분리해서 할때 647.1190로 바꿔야함
+#define KP 				16.0080	 	// 모터제어에 사용되는 Kp값 -> 3단에서 분리해서 할때 16.0080로 바꿔야함
+#define KI 				647.1190	// 모터제어에 사용되는 Ki값 -> 3단에서 분리해서 할때 647.1190로 바꿔야함
 #define fc 				10			// 차단 주파수 [Hz]
 #define PI 				3.14159265 	// arm_math.h 헤더파일에도 정의 되어 있음.
 
 // 엔코더 값 변환식
 #define volt_to_duty 	4200.0 / MaxV				// 전압을 듀티로 전환
-#define enc1_to_pos 	0.002 * teeth / motor_cpr	// 엔코더 1번의 값을 cart_position [m] 으로 변환 -> 3단에서 분리해서 할때 8192로 바꿔야함
+#define enc1_to_pos     2*PI*0.0095 / motor_cpr    // 엔코더 1번의 값을 cart_position [m] 으로 변환 -> 3단에서 분리해서 할때 바꿔야함
 #define enc2_to_rad 	2 * PI / pendulum1_cpr		// 엔코더 2번의 값을 pendulum 1 angle [rad] 으로 변환
 #define enc3_to_rad 	2 * PI / pendulum2_cpr 		// 엔코더 3번의 값을 pendulum 2 angle [rad] 으로 변환
 
@@ -410,9 +410,11 @@ void Timer4_Encoder_Init(); 	// Timer4(16-bit General-purpose timer)의 Encoder 
 void Timer6_Interrupt_Init();	// 1ms 주기로 인터럽트를 걸어주는 interrupt timer
 
 void Timer1_MT_Interrupt_Init();// 1단부 엔코더 값 input capture 후 interrupt 후 속도 계산하는 함수
+void Timer12_MT_Interrupt_Init();// 2단부 엔코더 값 input capture 후 interrupt 후 속도 계산하는 함수
 void Timer7_UPCounter_Init();	// 단순 UpCounter. M/T method에서 cnt의 변화를 보기 위한 함수의 init
 void Timer5_UPCounter_Init();	// 단순 UpCounter. M/T method에서 cnt의 변화를 보기 위한 함수의 init
 void Timer9_Interrupt_Init();	// 1ms 주기로 인터럽트를 걸어주는 interrupt timer - M/T method 1단부
+void Timer11_Interrupt_Init();	// 1ms 주기로 인터럽트를 걸어주는 interrupt timer - M/T method 2단부
 void PIO_Configure_Init();
 
 void LED_SW_Init();				// 도립진자 제어와 상태를 표시하기 위한 LED 및 switch 활성화
@@ -492,15 +494,25 @@ volatile float FF_u = 0;
 volatile float err[DIP_state_cnt] = { };
 
 // M/T Method 에서 사용되는 변수
-volatile int16_t enc_cnt;
-volatile int16_t enc_cnt_prev;
-volatile int16_t enc_diff;
-volatile uint32_t clock_cnt;
-volatile uint32_t clock_cnt_prev;
-volatile uint32_t clock_diff;
+volatile int16_t enc1_cnt;
+volatile int16_t enc2_cnt;
+volatile int16_t enc1_cnt_prev;
+volatile int16_t enc2_cnt_prev;
+volatile int16_t enc1_diff;
+volatile int16_t enc2_diff;
+volatile uint32_t clock1_cnt;
+volatile uint32_t clock2_cnt;
+volatile uint32_t clock1_cnt_prev;
+volatile uint32_t clock2_cnt_prev;
+volatile uint32_t clock1_diff;
+volatile uint32_t clock2_diff;
 volatile float d_theta1_mt = 0;
+volatile float d_theta2_mt = 0;
 volatile float temp_d_theta1_mt;
+volatile float temp_d_theta2_mt;
 float temp_d_theta1;
+float temp_d_theta2;
+
 int main(void) {
 
 	uint8_t total_file = 0;					// SD카드에 들어있는 총 파일 수 확인한다.
@@ -540,8 +552,10 @@ int main(void) {
 	Timer4_Encoder_Init(); 		// TIM4_CH1 : PB6 	--> A상 연결 	// TIM4_CH2 : PB7 --> B상 연결
 	Timer6_Interrupt_Init();	// 1ms 주기로 인터럽트를 걸저주는 초기화
 	Timer1_MT_Interrupt_Init();	// 1단부 ENC 값을 받아와서 속도 계산하는 핸들러의 init
+	Timer12_MT_Interrupt_Init();	// 2단부 ENC 값을 받아와서 속도 계산하는 핸들러의 init
 	Timer5_UPCounter_Init();	// 단순 UpCounter. M/T method에서 cnt의 변화를 보기 위한 함수의 init
-	Timer9_Interrupt_Init();  	// 1ms 주기로 인터럽트를 걸어주는 interrupt timer 초기화 M/T method 용
+	Timer9_Interrupt_Init();  	// 1단부 1ms 주기로 인터럽트를 걸어주는 interrupt timer 초기화 M/T method 용
+	Timer11_Interrupt_Init();  	// 2단부 1ms 주기로 인터럽트를 걸어주는 interrupt timer 초기화 M/T method 용
 	PIO_Configure_Init();
 	LED_SW_Init();				// LED, SW 설정
 	con_PI1_Init(); 			// PI 속도 제어기
@@ -796,8 +810,10 @@ int main(void) {
 	NVIC_EnableIRQ(TIM6_DAC_IRQn);
 	//============================================================
 
-	enc_cnt_prev = TIM3->CNT;
-	clock_cnt_prev = TIM5->CNT;
+	enc1_cnt_prev = TIM3->CNT;
+	clock1_cnt_prev = TIM5->CNT;
+	enc2_cnt_prev = TIM4->CNT;
+	clock2_cnt_prev = TIM5->CNT;
 	// 해당 부분부터는 메인 loop 부분으로 이 영역에서는 스위치 신호에 맞춰 천이 궤적을 SD카드에서 가져오고,
 	// 모든 값을 가져온 이후에 tr_flag를 True로 바꾸는 순간 천이 시작된다.
 	// 2-DOF 제어는 천이 과정 중에 다음 상태로 바꿀 수 없으므로, 천이 과정중 다음 궤적 명령은 무시된다.
@@ -805,183 +821,186 @@ int main(void) {
 		GPIOC->BSRR |= GPIO_BSRR_BS2;   // PC2 HIGH;
 		temp_d_theta1_mt = d_theta1_mt;
 		temp_d_theta1 = d_theta1;
+		temp_d_theta2_mt = d_theta2_mt;
+		temp_d_theta2 = d_theta2;
 		// 천이 궤적 선택부로, 기본적으로 스위치가 8개인 상황임.
 		// 각각 EP0, EP1, EP2, EP3, Random1, Random2, ... 과 대응되며,
 		// 또한 천이 중이 아닌경우에만 실행. (!tr_flag)
 		// mode는 EP의 상태를 지정하는 변수, auto_flag는 Random의 종류를 선택하는 변수.
-		//
-		if (!tr_flag) {
-
-			if (!(GPIOE->IDR & 0x01)) {			// SW1
-				mode = 0;						// 원하는 다음 상태의 EP 번호
-				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-				GPIOD->ODR |= 0x00001000;		// EP 번호에 맞는 LED ON
-				auto_flag1 = false;
-				auto_flag2 = false;
-				auto_flag3 = false;
-				auto_flag4 = false;
-
-			} else if (!(GPIOE->IDR & 0x02)) {	// SW2
-				mode = 1;						// 원하는 다음 상태의 EP 번호
-				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-				GPIOD->ODR |= 0x00002000;		// EP 번호에 맞는 LED ON
-				auto_flag1 = false;
-				auto_flag2 = false;
-				auto_flag3 = false;
-				auto_flag4 = false;
-
-			} else if (!(GPIOE->IDR & 0x04)) {	// SW3
-				mode = 2;						// 원하는 다음 상태의 EP 번호
-				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-				GPIOD->ODR |= 0x00004000;		// EP 번호에 맞는 LED ON
-				auto_flag1 = false;
-				auto_flag2 = false;
-				auto_flag3 = false;
-				auto_flag4 = false;
-
-			} else if (!(GPIOE->IDR & 0x08)) {	// SW4
-				mode = 3;						// 원하는 다음 상태의 EP 번호
-				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-				GPIOD->ODR |= 0x00008000;		// EP 번호에 맞는 LED ON
-				auto_flag1 = false;
-				auto_flag2 = false;
-				auto_flag3 = false;
-				auto_flag4 = false;
-
-			} else if (!(GPIOE->IDR & 0x10)) {	// SW5
-				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-				auto_flag1 = true;				// Random pattern1 ON
-				auto_flag2 = false;
-				auto_flag3 = false;
-				auto_flag4 = false;
-
-			} else if (!(GPIOE->IDR & 0x20)) {	// SW6
-				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-				auto_flag1 = false;
-				auto_flag2 = true;				// Random pattern2 ON
-				auto_flag3 = false;
-				auto_flag4 = false;
-
-			} else if (!(GPIOE->IDR & 0x40)) {	// SW7
-				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-				auto_flag1 = false;
-				auto_flag2 = false;
-				auto_flag3 = true;				// Random pattern3 ON
-				auto_flag4 = false;
-
-			} else if (!(GPIOE->IDR & 0x80)) {	// SW8
-				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-				auto_flag1 = false;
-				auto_flag2 = false;
-				auto_flag3 = false;
-				auto_flag4 = true;				// Random pattern4 ON
-			}
-
-			// Random pattern 선택시 다음의 조건문을 들어온다.
-			if (auto_flag1 || auto_flag2 || auto_flag3 || auto_flag4) {
-
-				// 선형 구간에서 4초 이상 안정적인 상태일 때 동작하도록 설계
-				if (time_L > 4) {
-
-					// Random pattern1
-					// 12가지 천이궤적을 모두 천이하는 궤적
-					// 천이순서는 다음과 같음.
-					// 1->2->3->2->1->3->1->0->2->0->3->0-> ...
-					if (auto_flag1) {
-						// 12가지 패턴이 끝나면 0으로 초기화
-						if (p_i >= 12)
-							p_i = 0;
-						// 현재 모드에 맞는 값으로 들어감.
-						mode = pattern1[p_i];
-					}
-
-					// Random pattern2
-					// 6가지 천이궤적을 모두 천이하는 궤적
-					// 천이순서는 다음과 같음.
-					// 1->2->3->2->1->0->...
-					if (auto_flag2) {
-						// 6가지 패턴이 끝나면 0으로 초기화
-						if (p_i >= 6)
-							p_i = 0;
-						// 현재 모드에 맞는 값으로 들어감.
-						mode = pattern2[p_i];
-					}
-
-					// Random pattern3
-					// 6가지 천이궤적을 모두 천이하는 궤적
-					// 천이순서는 다음과 같음.
-					// 3->0->2->0->1->0-> ...
-					if (auto_flag3) {
-						// 6가지 패턴이 끝나면 0으로 초기화
-						if (p_i >= 6)
-							p_i = 0;
-						// 현재 모드에 맞는 값으로 들어감.
-						mode = pattern3[p_i];
-					}
-
-					// Random pattern4
-					// 2가지 천이궤적을 모두 천이하는 궤적
-					// 천이순서는 다음과 같음.
-					// 3->0-> ...
-					if (auto_flag4) {
-						// 2가지 패턴이 끝나면 0으로 초기화
-						if (p_i >= 2)
-							p_i = 0;
-						// 현재 모드에 맞는 값으로 들어감.
-						mode = pattern4[p_i];
-					}
-
-					GPIOD->ODR &= ~0x0000F000;			// LED 초기화
-					GPIOD->ODR |= (0x00001000 << mode); // 현재 모드에 맞는 LED에 불이 켜짐.
-					p_i++;								// 패턴 index의 값을 증가시킴.
-				}
-			}
-			// Random pattern이 아닐 경우,
-			else
-				p_i = 0;			// Pattern index 초기화
-
-			DWT_us_Delay(100);
-
-			// 2-DOF m값 연산
-			//   \   0   1   2   3   (start)
-			//       ---------------
-			//   0|  x   4   7  10
-			//   1|  1   x   8  11
-			//   2|  2   5   x  12
-			//   3|  3   6   9   x
-			// (end)
-			//
-			// 위 표를 참고하여, 다음과 같은 식을 이용하면,
-			// 현재 EP(mode)와 과거 EP(mode_p)를 이용해서 궤적의 종류(m)을 구할 수 있음.
-			// 이는 현재 EP와 과거 EP가 다른 순간에만 진행되며, 그 때 천이 상태가 아니어야 함.
-			// 현재 상태가 과거 상태와 다를 떄만 동작, 가장 초기단계에서 mode와 mode_p가 0으로 초기화 되어있다.
-			if (mode != mode_p) {
-				// 이 연산 과정은 EP의 과거값과 현재값을 이용하면, 다음과 같은 식으로 m값을 쉽게 구할 수 있다.
-				// 다음의 과정은 위의 표를 참고하면 쉽게 이해할 수 있다.
-				if (mode_p < mode)
-					m = 3 * mode_p + mode;
-				else
-					m = 3 * mode_p + mode + 1;
-
-				// SD카드에서 m값에 맞는 feedforward 천이궤적을 가져옴.
-				Get_Transition_param(TRnnt, TRnnu, TRnnx, TRnnK, m);
-
-				// feedforward 상태 궤적의 가장 마지막 수렴점을 미리 받는다.
-				// 이는 선형제어 시 수렴값을 선정하기 위함.
-				for (int i = 0; i < DIP_state_cnt; i++)
-					EPnx_end[i] = TRnnx[DIP_point_cnt-1][i];
-
-				// 이후 과거값을 저장한다.
-				mode_p = mode;
-				m_p = m;
-
-				time_ff = time_r; 	// 궤적을 가져온 직후의 simulation time을 가져와서 feedforwawrd 시작 지점으로 선정한다.
-				tr_flag = true;		// 모든 값을 수정했다면, 천이를 진행한다.(시간 설정 이후에 바로 천이를 시작해야 오류가 나지 않는다. 이 사이에는 절대 아무 코드도 넣으면 안된다.)
-			}
-		}
+//		//
+//		if (!tr_flag) {
+//
+//			if (!(GPIOE->IDR & 0x01)) {			// SW1
+//				mode = 0;						// 원하는 다음 상태의 EP 번호
+//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+//				GPIOD->ODR |= 0x00001000;		// EP 번호에 맞는 LED ON
+//				auto_flag1 = false;
+//				auto_flag2 = false;
+//				auto_flag3 = false;
+//				auto_flag4 = false;
+//
+//			} else if (!(GPIOE->IDR & 0x02)) {	// SW2
+//				mode = 1;						// 원하는 다음 상태의 EP 번호
+//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+//				GPIOD->ODR |= 0x00002000;		// EP 번호에 맞는 LED ON
+//				auto_flag1 = false;
+//				auto_flag2 = false;
+//				auto_flag3 = false;
+//				auto_flag4 = false;
+//
+//			} else if (!(GPIOE->IDR & 0x04)) {	// SW3
+//				mode = 2;						// 원하는 다음 상태의 EP 번호
+//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+//				GPIOD->ODR |= 0x00004000;		// EP 번호에 맞는 LED ON
+//				auto_flag1 = false;
+//				auto_flag2 = false;
+//				auto_flag3 = false;
+//				auto_flag4 = false;
+//
+//			} else if (!(GPIOE->IDR & 0x08)) {	// SW4
+//				mode = 3;						// 원하는 다음 상태의 EP 번호
+//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+//				GPIOD->ODR |= 0x00008000;		// EP 번호에 맞는 LED ON
+//				auto_flag1 = false;
+//				auto_flag2 = false;
+//				auto_flag3 = false;
+//				auto_flag4 = false;
+//
+//			} else if (!(GPIOE->IDR & 0x10)) {	// SW5
+//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+//				auto_flag1 = true;				// Random pattern1 ON
+//				auto_flag2 = false;
+//				auto_flag3 = false;
+//				auto_flag4 = false;
+//
+//			} else if (!(GPIOE->IDR & 0x20)) {	// SW6
+//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+//				auto_flag1 = false;
+//				auto_flag2 = true;				// Random pattern2 ON
+//				auto_flag3 = false;
+//				auto_flag4 = false;
+//
+//			} else if (!(GPIOE->IDR & 0x40)) {	// SW7
+//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+//				auto_flag1 = false;
+//				auto_flag2 = false;
+//				auto_flag3 = true;				// Random pattern3 ON
+//				auto_flag4 = false;
+//
+//			} else if (!(GPIOE->IDR & 0x80)) {	// SW8
+//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+//				auto_flag1 = false;
+//				auto_flag2 = false;
+//				auto_flag3 = false;
+//				auto_flag4 = true;				// Random pattern4 ON
+//			}
+//
+//			// Random pattern 선택시 다음의 조건문을 들어온다.
+//			if (auto_flag1 || auto_flag2 || auto_flag3 || auto_flag4) {
+//
+//				// 선형 구간에서 4초 이상 안정적인 상태일 때 동작하도록 설계
+//				if (time_L > 4) {
+//
+//					// Random pattern1
+//					// 12가지 천이궤적을 모두 천이하는 궤적
+//					// 천이순서는 다음과 같음.
+//					// 1->2->3->2->1->3->1->0->2->0->3->0-> ...
+//					if (auto_flag1) {
+//						// 12가지 패턴이 끝나면 0으로 초기화
+//						if (p_i >= 12)
+//							p_i = 0;
+//						// 현재 모드에 맞는 값으로 들어감.
+//						mode = pattern1[p_i];
+//					}
+//
+//					// Random pattern2
+//					// 6가지 천이궤적을 모두 천이하는 궤적
+//					// 천이순서는 다음과 같음.
+//					// 1->2->3->2->1->0->...
+//					if (auto_flag2) {
+//						// 6가지 패턴이 끝나면 0으로 초기화
+//						if (p_i >= 6)
+//							p_i = 0;
+//						// 현재 모드에 맞는 값으로 들어감.
+//						mode = pattern2[p_i];
+//					}
+//
+//					// Random pattern3
+//					// 6가지 천이궤적을 모두 천이하는 궤적
+//					// 천이순서는 다음과 같음.
+//					// 3->0->2->0->1->0-> ...
+//					if (auto_flag3) {
+//						// 6가지 패턴이 끝나면 0으로 초기화
+//						if (p_i >= 6)
+//							p_i = 0;
+//						// 현재 모드에 맞는 값으로 들어감.
+//						mode = pattern3[p_i];
+//					}
+//
+//					// Random pattern4
+//					// 2가지 천이궤적을 모두 천이하는 궤적
+//					// 천이순서는 다음과 같음.
+//					// 3->0-> ...
+//					if (auto_flag4) {
+//						// 2가지 패턴이 끝나면 0으로 초기화
+//						if (p_i >= 2)
+//							p_i = 0;
+//						// 현재 모드에 맞는 값으로 들어감.
+//						mode = pattern4[p_i];
+//					}
+//
+//					GPIOD->ODR &= ~0x0000F000;			// LED 초기화
+//					GPIOD->ODR |= (0x00001000 << mode); // 현재 모드에 맞는 LED에 불이 켜짐.
+//					p_i++;								// 패턴 index의 값을 증가시킴.
+//				}
+//			}
+//			// Random pattern이 아닐 경우,
+//			else
+//				p_i = 0;			// Pattern index 초기화
+//
+//			DWT_us_Delay(100);
+//
+//			// 2-DOF m값 연산
+//			//   \   0   1   2   3   (start)
+//			//       ---------------
+//			//   0|  x   4   7  10
+//			//   1|  1   x   8  11
+//			//   2|  2   5   x  12
+//			//   3|  3   6   9   x
+//			// (end)
+//			//
+//			// 위 표를 참고하여, 다음과 같은 식을 이용하면,
+//			// 현재 EP(mode)와 과거 EP(mode_p)를 이용해서 궤적의 종류(m)을 구할 수 있음.
+//			// 이는 현재 EP와 과거 EP가 다른 순간에만 진행되며, 그 때 천이 상태가 아니어야 함.
+//			// 현재 상태가 과거 상태와 다를 떄만 동작, 가장 초기단계에서 mode와 mode_p가 0으로 초기화 되어있다.
+//			if (mode != mode_p) {
+//				// 이 연산 과정은 EP의 과거값과 현재값을 이용하면, 다음과 같은 식으로 m값을 쉽게 구할 수 있다.
+//				// 다음의 과정은 위의 표를 참고하면 쉽게 이해할 수 있다.
+//				if (mode_p < mode)
+//					m = 3 * mode_p + mode;
+//				else
+//					m = 3 * mode_p + mode + 1;
+//
+//				// SD카드에서 m값에 맞는 feedforward 천이궤적을 가져옴.
+//				Get_Transition_param(TRnnt, TRnnu, TRnnx, TRnnK, m);
+//
+//				// feedforward 상태 궤적의 가장 마지막 수렴점을 미리 받는다.
+//				// 이는 선형제어 시 수렴값을 선정하기 위함.
+//				for (int i = 0; i < DIP_state_cnt; i++)
+//					EPnx_end[i] = TRnnx[DIP_point_cnt-1][i];
+//
+//				// 이후 과거값을 저장한다.
+//				mode_p = mode;
+//				m_p = m;
+//
+//				time_ff = time_r; 	// 궤적을 가져온 직후의 simulation time을 가져와서 feedforwawrd 시작 지점으로 선정한다.
+//				tr_flag = true;		// 모든 값을 수정했다면, 천이를 진행한다.(시간 설정 이후에 바로 천이를 시작해야 오류가 나지 않는다. 이 사이에는 절대 아무 코드도 넣으면 안된다.)
+//			}
+//		}
 
 //		sprintf(str, "%.2f\n",d_theta1_mt);
-		sprintf(str, "%.2f %.2f\n", temp_d_theta1_mt, temp_d_theta1);
+//		sprintf(str, "%.2f %.2f\n", temp_d_theta1_mt, temp_d_theta1);
+		sprintf(str, "%.2f %.2f\n", temp_d_theta2_mt, temp_d_theta2);
 		UsbPutString(str);
 //		TX3_PutString(str);
 		GPIOC->BSRR |= GPIO_BSRR_BR2;   // PC2 HIGH;
@@ -1012,6 +1031,7 @@ void TIM6_DAC_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s �
 		d_theta1 = (float) (enc2 - enc2_p) * enc2_to_rad / sample_time;	// 각속도값 계산
 //		d_theta1 = temp_d_theta1_mt;
 		d_theta2 = (float) (enc3 - enc3_p) * enc3_to_rad / sample_time;	// 각속도값 계산
+//		d_theta2 = temp_d_theta2_mt;
 		cart_int += cart_pos * sample_time;
 
 		// 미분 계산을 위해 과거값 저장
@@ -1754,7 +1774,7 @@ void Timer6_Interrupt_Init()
 //	12) TIM1_CC_IRQHandler() 제작
 
 void Timer1_MT_Interrupt_Init() {
-	// PE9(A상), PE11(B상)을 Alternate function으로 설정한다.
+	// 1단은 PE9(A상), PE11(B상)을 Alternate function으로 설정한다.
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;  // GPIOE clock enable
 	GPIOE->MODER &= (~GPIO_MODER_MODER9 & ~GPIO_MODER_MODER11);
 	GPIOE->MODER |= ((0x2 << GPIO_MODER_MODER9_Pos)	| (0x2 << GPIO_MODER_MODER11_Pos)); // 10 (=0x2) : alternate function
@@ -1762,11 +1782,10 @@ void Timer1_MT_Interrupt_Init() {
 	GPIOE->AFR[1] &= (~GPIO_AFRH_AFSEL9 & ~GPIO_AFRH_AFSEL11);
 	GPIOE->AFR[1] |= ((0x1 << GPIO_AFRH_AFSEL9_Pos)	| (0x1 << GPIO_AFRH_AFSEL11_Pos));  //  AF1 할당, AF1는 0001 (=0x1)
 
-	// TIMER1 설정 input capture. A상 CC1 채널, B상 CC2 채널
+	// TIMER1 설정 input capture. 1단 A상 CC1 채널, B상 CC2 채널
 	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;   // TIM1 clock enable
 	TIM1->CCMR1 &= (~TIM_CCMR1_CC1S & ~TIM_CCMR1_CC2S);
 	TIM1->CCMR1 |= ((0x1 << TIM_CCMR1_CC1S_Pos) |(0x1 << TIM_CCMR1_CC2S_Pos)); // 01 (=0x1) : CC1 channel is configured as input, IC1 is mapped on TI1,CC2 channel is configured as input, IC2 is mapped on TI2
-
 	// input filter CH1과 CH2으로 받기에, 두 채널에 필터. 4번의 연속된 이벤트가 있어야 안정된 신호로 인식
 	TIM1->CCMR1 &= (~TIM_CCMR1_IC1F & ~TIM_CCMR1_IC2F);
 	TIM1->CCMR1 |= ((0x2 << TIM_CCMR1_IC1F_Pos) | (0x2 << TIM_CCMR1_IC2F_Pos)); // input filter 설정 0010 (=0x2) : 0010: fSAMPLING=fCK_INT, N=4
@@ -1800,19 +1819,96 @@ void TIM1_CC_IRQHandler() { // IRQ Handler의 이름은 startup_stm32f407xx.s �
 	TIM9->CR1 |= TIM_CR1_CEN;   		// TIM9 counter enable.
 	TIM9->DIER |= TIM_DIER_UIE;			// TIM9 1ms interrupt enable
 
-	enc_cnt = TIM3->CNT; 					// Encoder의 값을 받아옴
-	clock_cnt = TIM5->CNT;
+	enc1_cnt = TIM3->CNT; 					// Encoder의 값을 받아옴
+	clock1_cnt = TIM5->CNT;
 
-	enc_diff = enc_cnt - enc_cnt_prev;		// 논문에서 m1에 해당
-	enc_cnt_prev = enc_cnt; // 값 저장
+	enc1_diff = enc1_cnt - enc1_cnt_prev;		// 논문에서 m1에 해당
+	enc1_cnt_prev = enc1_cnt; // 값 저장
 
-	clock_diff = clock_cnt - clock_cnt_prev;		// 논문에서 m2에 해당
-	clock_cnt_prev = clock_cnt;
+	clock1_diff = clock1_cnt - clock1_cnt_prev;		// 논문에서 m2에 해당
+	clock1_cnt_prev = clock1_cnt;
 
 	// 논문을 보면 RPM 기준 속도가 (60*fc*m1)/(P*m2)[RPM]. (2*pi*fc*m1)/(P*m2)[rad/sec]
 	// fc는 m2가 생성되는 주파수 즉, 단순 Upcounter의 주파수가 들어가는데, prescale = 1로 가져서 FCK_PSC = 84MHz이다. 즉 42MHz
 	// P는 CPR로 생각한다. 2PI/P의 값을 enc2_to_rad라는 이름의 변수로 설정하였다.
-	d_theta1_mt = (enc2_to_rad*42000000*(float)enc_diff)/(float)clock_diff;
+	d_theta1_mt = (enc2_to_rad*42000000*(float)enc1_diff)/(float)clock1_diff;
+
+//	if(flag1==0)
+//	{
+//		GPIOB->BSRR |= GPIO_BSRR_BS0;   // PB0 HIGH;
+//		flag1 = 1;
+//	}
+//	else
+//	{
+//		GPIOB->BSRR |= GPIO_BSRR_BR0;   // PB0 LOW;
+//		flag1 = 0;
+//	}
+}
+//=========================================================
+//================2단용 MT 메소드======================
+// A상 PB14 : TIM12_CH1
+// A상 PB15 : TIM12_CH2
+//=========================================================
+void Timer12_MT_Interrupt_Init() {
+	// 2단은 PB14(A상), PB15(B상)을 Alternate function으로 설정한다. 1001: AF9
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;  // GPIOB clock enable
+	GPIOB->MODER &= (~GPIO_MODER_MODER14 & ~GPIO_MODER_MODER15);
+	GPIOB->MODER |= ((0x2 << GPIO_MODER_MODER14_Pos) | (0x2 << GPIO_MODER_MODER15_Pos)); // 10 (=0x2) : alternate function
+
+	GPIOB->AFR[1] &= (~GPIO_AFRH_AFSEL14 & ~GPIO_AFRH_AFSEL15);
+	GPIOB->AFR[1] |= ((0x9 << GPIO_AFRH_AFSEL14_Pos) | (0x9 << GPIO_AFRH_AFSEL15_Pos));  //  AF9 할당, AF9는 1001 (=0x9)
+
+	// TIMER12 설정 input capture. A상 CC1 채널, B상 CC2 채널
+	RCC->APB1ENR |= RCC_APB1ENR_TIM12EN;   // TIM12 clock enable
+	TIM12->CCMR1 &= (~TIM_CCMR1_CC1S & ~TIM_CCMR1_CC2S);
+	TIM12->CCMR1 |= ((0x1 << TIM_CCMR1_CC1S_Pos) |(0x1 << TIM_CCMR1_CC2S_Pos)); // 01 (=0x1) : CC1 channel is configured as input, IC1 is mapped on TI1,CC2 channel is configured as input, IC2 is mapped on TI2
+
+	// input filter CH1과 CH2으로 받기에, 두 채널에 필터. 4번의 연속된 이벤트가 있어야 안정된 신호로 인식
+	TIM12->CCMR1 &= (~TIM_CCMR1_IC1F & ~TIM_CCMR1_IC2F);
+	TIM12->CCMR1 |= ((0x2 << TIM_CCMR1_IC1F_Pos) | (0x2 << TIM_CCMR1_IC2F_Pos)); // input filter 설정 0010 (=0x2) : 0010: fSAMPLING=fCK_INT, N=4
+
+	// both edge detection
+	TIM12->CCER &= (~TIM_CCER_CC1P & ~TIM_CCER_CC2P);
+	TIM12->CCER |= ((0x3 << TIM_CCER_CC1P_Pos) | (0x3 << TIM_CCER_CC2P_Pos));  // CC1P=11(=0x3),CC2P=11(=0x3) non inverted/both edges
+
+	// input capture enable
+	TIM12->CCER |= (TIM_CCER_CC1E | TIM_CCER_CC2E); // 1 : Capture enabled
+
+	TIM12->CR1 |= TIM_CR1_CEN; // TIM1을 enable 시킨다.
+
+	TIM12->DIER &= (~TIM_DIER_CC1IE & ~TIM_DIER_CC2IE); // Capture/Compare 1,2 interrupt disable -> TIM11 Handler에서 enable
+
+	NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn);
+	NVIC_ClearPendingIRQ(TIM8_BRK_TIM12_IRQn); // pending data를 clear
+	NVIC_SetPriority(TIM8_BRK_TIM12_IRQn,3);
+	NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
+}
+
+void TIM8_BRK_TIM12_IRQHandler() { // IRQ Handler의 이름은 startup_stm32f407xx.s 에서 찾아볼 수 있다.
+
+	static int flag1=0;
+
+	TIM12->SR &= (~TIM_SR_CC1IF & ~TIM_SR_CC2IF);
+	TIM12->DIER &= (~TIM_DIER_CC1IE & ~TIM_DIER_CC2IE); // Capture/Compare 1,2 interrupt disable
+
+	TIM11->SR &= ~TIM_SR_UIF;
+	TIM11->CNT = 0;						// 1ms interrupt 켜기 전 카운트 초기화
+	TIM11->CR1 |= TIM_CR1_CEN;   		// TIM11 counter enable.
+	TIM11->DIER |= TIM_DIER_UIE;			// TIM11 1ms interrupt enable
+
+	enc2_cnt = TIM4->CNT; 					// Encoder의 값을 받아옴
+	clock2_cnt = TIM5->CNT;
+
+	enc2_diff = enc2_cnt - enc2_cnt_prev;		// 논문에서 m1에 해당
+	enc2_cnt_prev = enc2_cnt; // 값 저장
+
+	clock2_diff = clock2_cnt - clock2_cnt_prev;		// 논문에서 m2에 해당
+	clock2_cnt_prev = clock2_cnt;
+
+	// 논문을 보면 RPM 기준 속도가 (60*fc*m1)/(P*m2)[RPM]. (2*pi*fc*m1)/(P*m2)[rad/sec]
+	// fc는 m2가 생성되는 주파수 즉, 단순 Upcounter의 주파수가 들어가는데, prescale = 1로 가져서 FCK_PSC = 84MHz이다. 즉 42MHz
+	// P는 CPR로 생각한다. 2PI/P의 값을 enc2_to_rad라는 이름의 변수로 설정하였다.
+	d_theta2_mt = (enc3_to_rad*42000000*(float)enc2_diff)/(float)clock2_diff;
 
 	if(flag1==0)
 	{
@@ -1835,15 +1931,6 @@ void Timer5_UPCounter_Init() {
 
     TIM5->CR1 |= TIM_CR1_CEN;  // Enable TIM7,
 }
-//void Timer7_UPCounter_Init() {
-//    RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;  // TIM7 clock enable
-//
-//    TIM7->PSC = 0x1; // Prescale 설정 PSC=1, fCK_PSC / (PSC[15:0] + 1). 즉 나누기 2. fCK_PSC = 84MHz
-//    TIM7->ARR = 0xFFFF;  // Set the auto-reload register to the maximum value
-//    TIM7->CNT = 0;		// count 초기화
-//
-//    TIM7->CR1 |= TIM_CR1_CEN;  // Enable TIM7,
-//}
 
 //================================================================
 // 1단부 엔코더값에 M/T Method를 적용하기 위한 1ms timer interrupt 설정
@@ -1862,7 +1949,7 @@ void Timer9_Interrupt_Init() {
 
 	NVIC_DisableIRQ(TIM1_BRK_TIM9_IRQn); 	// 위의 code 대신 이렇게 처리할 수도 있다. TIM1_BRK_TIM9_IRQn는 stm32f407xx.h에 정의
 	NVIC_ClearPendingIRQ(TIM1_BRK_TIM9_IRQn); // pending data를 clear
-	NVIC_SetPriority(TIM1_BRK_TIM9_IRQn,3);
+	NVIC_SetPriority(TIM1_BRK_TIM9_IRQn,4);
 	NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn);
 
 	TIM9->CR1 |= TIM_CR1_CEN;   			// TIM9 enable.
@@ -1880,6 +1967,53 @@ void TIM1_BRK_TIM9_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx
 	//=====================================================================================
 	TIM1->SR &= (~TIM_SR_CC1IF & ~TIM_SR_CC2IF);	// TIM1 켜기 전에 인터럽트 status 초기화
 	TIM1->DIER |= (TIM_DIER_CC1IE | TIM_DIER_CC2IE); // Capture/Compare 1,2 interrupt enable
+	//=====================================================================================
+
+//	if(flag==0)
+//	{
+//		GPIOC->BSRR |= GPIO_BSRR_BS0;   // PC0 HIGH;
+//		flag = 1;
+//	}
+//	else
+//	{
+//		GPIOC->BSRR |= GPIO_BSRR_BR0;   // PC0 LOW;
+//		flag = 0;
+//	}
+}
+//================================================================
+// 2단부 엔코더값에 M/T Method를 적용하기 위한 1ms timer interrupt 설정
+// TIM11 사용
+//================================================================
+void Timer11_Interrupt_Init() {
+	RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;   // TIM11 clock enable
+	// 여기서부터 TIM9을 설정해보자.
+	TIM11->PSC = 1679; 						// Prescale 설정 PSC=1679, The counter clock frequency (CK_CNT) is equal to 168MHz/(1679+1) = 100KHz.
+	TIM11->ARR = 99;   						// interrupt의 freq는 1ms 168MHz/1680*(99+1) = 1KHz
+	TIM11->CNT = 0;   						// Counter를 0으로 clear
+	// Interrupt enable
+	TIM11->DIER |= TIM_DIER_UIE; 			// Update interrupt enable.
+	TIM11->CR1 |= TIM_CR1_ARPE; 				// Auto-reload preload enable, ARPE=1 : TIMx_ARR register is buffered
+	TIM11->CR1 |= TIM_CR1_URS; 				// URS=1: Only counter overflow generates an update interrupt or DMA request if enabled.
+
+	NVIC_DisableIRQ(TIM1_TRG_COM_TIM11_IRQn); 	// 위의 code 대신 이렇게 처리할 수도 있다. TIM1_BRK_TIM9_IRQn는 stm32f407xx.h에 정의
+	NVIC_ClearPendingIRQ(TIM1_TRG_COM_TIM11_IRQn); // pending data를 clear
+	NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn,5);
+	NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+
+	TIM11->CR1 |= TIM_CR1_CEN;   			// TIM11 enable.
+}
+//----------------------------------------------------------------
+// Timer11 interrupt init의 설정에 의해 enable 된 interrupt handler. 1ms에 한번
+//----------------------------------------------------------------
+void TIM1_TRG_COM_TIM11_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s 에서 찾아볼 수 있다.
+{
+	static int flag=0;
+	TIM11->SR &= ~TIM_SR_UIF;				// TIM11 켜기 전에 인터럽트 status 초기화
+	TIM11->CR1 &= ~TIM_CR1_CEN;   			// TIM11 counter disable.
+	TIM11->DIER &= ~TIM_DIER_UIE;			// TIM11 1ms interrupt disable
+	//=====================================================================================
+	TIM12->SR &= (~TIM_SR_CC1IF & ~TIM_SR_CC2IF);	// TIM12 켜기 전에 인터럽트 status 초기화
+	TIM12->DIER |= (TIM_DIER_CC1IE | TIM_DIER_CC2IE); // Capture/Compare 1,2 interrupt enable
 	//=====================================================================================
 
 	if(flag==0)
