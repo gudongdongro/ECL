@@ -43,7 +43,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  19 .debug_line   0000b90c  00000000  00000000  0004b515  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_str    00093f7b  00000000  00000000  00056e21  2**0
+ 20 .debug_str    00093f79  00000000  00000000  00056e21  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  21 .debug_frame  0000373c  00000000  00000000  000ead9c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
@@ -2924,298 +2924,298 @@ void TIM8_UP_TIM13_IRQHandler() // IRQ Handler의 이름은 startup_stm32f407xx.
  8001afe:	681b      	ldr	r3, [r3, #0]
  8001b00:	ee07 3a90 	vmov	s15, r3
  8001b04:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8001b08:	ee17 0a90 	vmov	r0, s15
- 8001b0c:	f7fe fd2c 	bl	8000568 <__aeabi_f2d>
- 8001b10:	a3ad      	add	r3, pc, #692	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
- 8001b12:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001b16:	f7fe fd7f 	bl	8000618 <__aeabi_dmul>
- 8001b1a:	4602      	mov	r2, r0
- 8001b1c:	460b      	mov	r3, r1
- 8001b1e:	4610      	mov	r0, r2
- 8001b20:	4619      	mov	r1, r3
- 8001b22:	f04f 0200 	mov.w	r2, #0
- 8001b26:	4bb6      	ldr	r3, [pc, #728]	; (8001e00 <TIM8_UP_TIM13_IRQHandler+0x338>)
- 8001b28:	f7fe fd76 	bl	8000618 <__aeabi_dmul>
- 8001b2c:	4602      	mov	r2, r0
- 8001b2e:	460b      	mov	r3, r1
- 8001b30:	4610      	mov	r0, r2
- 8001b32:	4619      	mov	r1, r3
- 8001b34:	a3a6      	add	r3, pc, #664	; (adr r3, 8001dd0 <TIM8_UP_TIM13_IRQHandler+0x308>)
- 8001b36:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001b3a:	f7fe fe97 	bl	800086c <__aeabi_ddiv>
- 8001b3e:	4602      	mov	r2, r0
- 8001b40:	460b      	mov	r3, r1
- 8001b42:	4610      	mov	r0, r2
- 8001b44:	4619      	mov	r1, r3
- 8001b46:	f7ff f85f 	bl	8000c08 <__aeabi_d2f>
- 8001b4a:	4603      	mov	r3, r0
- 8001b4c:	4aad      	ldr	r2, [pc, #692]	; (8001e04 <TIM8_UP_TIM13_IRQHandler+0x33c>)
- 8001b4e:	6013      	str	r3, [r2, #0]
+ 8001b08:	ee77 7aa7 	vadd.f32	s15, s15, s15
+ 8001b0c:	ee17 0a90 	vmov	r0, s15
+ 8001b10:	f7fe fd2a 	bl	8000568 <__aeabi_f2d>
+ 8001b14:	a3ac      	add	r3, pc, #688	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
+ 8001b16:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001b1a:	f7fe fd7d 	bl	8000618 <__aeabi_dmul>
+ 8001b1e:	4602      	mov	r2, r0
+ 8001b20:	460b      	mov	r3, r1
+ 8001b22:	4610      	mov	r0, r2
+ 8001b24:	4619      	mov	r1, r3
+ 8001b26:	a3aa      	add	r3, pc, #680	; (adr r3, 8001dd0 <TIM8_UP_TIM13_IRQHandler+0x308>)
+ 8001b28:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001b2c:	f7fe fd74 	bl	8000618 <__aeabi_dmul>
+ 8001b30:	4602      	mov	r2, r0
+ 8001b32:	460b      	mov	r3, r1
+ 8001b34:	4610      	mov	r0, r2
+ 8001b36:	4619      	mov	r1, r3
+ 8001b38:	a3a7      	add	r3, pc, #668	; (adr r3, 8001dd8 <TIM8_UP_TIM13_IRQHandler+0x310>)
+ 8001b3a:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001b3e:	f7fe fe95 	bl	800086c <__aeabi_ddiv>
+ 8001b42:	4602      	mov	r2, r0
+ 8001b44:	460b      	mov	r3, r1
+ 8001b46:	4610      	mov	r0, r2
+ 8001b48:	4619      	mov	r1, r3
+ 8001b4a:	f7ff f85d 	bl	8000c08 <__aeabi_d2f>
+ 8001b4e:	4603      	mov	r3, r0
+ 8001b50:	4aab      	ldr	r2, [pc, #684]	; (8001e00 <TIM8_UP_TIM13_IRQHandler+0x338>)
+ 8001b52:	6013      	str	r3, [r2, #0]
 		theta1 = (float) enc2 * enc2_to_rad - PI;
- 8001b50:	4ba8      	ldr	r3, [pc, #672]	; (8001df4 <TIM8_UP_TIM13_IRQHandler+0x32c>)
- 8001b52:	881b      	ldrh	r3, [r3, #0]
- 8001b54:	b21b      	sxth	r3, r3
- 8001b56:	ee07 3a90 	vmov	s15, r3
- 8001b5a:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8001b5e:	ee77 7aa7 	vadd.f32	s15, s15, s15
- 8001b62:	ee17 0a90 	vmov	r0, s15
- 8001b66:	f7fe fcff 	bl	8000568 <__aeabi_f2d>
- 8001b6a:	a39b      	add	r3, pc, #620	; (adr r3, 8001dd8 <TIM8_UP_TIM13_IRQHandler+0x310>)
- 8001b6c:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001b70:	f7fe fd52 	bl	8000618 <__aeabi_dmul>
- 8001b74:	4602      	mov	r2, r0
- 8001b76:	460b      	mov	r3, r1
- 8001b78:	4610      	mov	r0, r2
- 8001b7a:	4619      	mov	r1, r3
- 8001b7c:	f04f 0200 	mov.w	r2, #0
- 8001b80:	4ba1      	ldr	r3, [pc, #644]	; (8001e08 <TIM8_UP_TIM13_IRQHandler+0x340>)
- 8001b82:	f7fe fe73 	bl	800086c <__aeabi_ddiv>
- 8001b86:	4602      	mov	r2, r0
- 8001b88:	460b      	mov	r3, r1
- 8001b8a:	4610      	mov	r0, r2
- 8001b8c:	4619      	mov	r1, r3
- 8001b8e:	a392      	add	r3, pc, #584	; (adr r3, 8001dd8 <TIM8_UP_TIM13_IRQHandler+0x310>)
- 8001b90:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001b94:	f7fe fb88 	bl	80002a8 <__aeabi_dsub>
- 8001b98:	4602      	mov	r2, r0
- 8001b9a:	460b      	mov	r3, r1
- 8001b9c:	4610      	mov	r0, r2
- 8001b9e:	4619      	mov	r1, r3
- 8001ba0:	f7ff f832 	bl	8000c08 <__aeabi_d2f>
- 8001ba4:	4603      	mov	r3, r0
- 8001ba6:	4a99      	ldr	r2, [pc, #612]	; (8001e0c <TIM8_UP_TIM13_IRQHandler+0x344>)
- 8001ba8:	6013      	str	r3, [r2, #0]
+ 8001b54:	4ba7      	ldr	r3, [pc, #668]	; (8001df4 <TIM8_UP_TIM13_IRQHandler+0x32c>)
+ 8001b56:	881b      	ldrh	r3, [r3, #0]
+ 8001b58:	b21b      	sxth	r3, r3
+ 8001b5a:	ee07 3a90 	vmov	s15, r3
+ 8001b5e:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8001b62:	ee77 7aa7 	vadd.f32	s15, s15, s15
+ 8001b66:	ee17 0a90 	vmov	r0, s15
+ 8001b6a:	f7fe fcfd 	bl	8000568 <__aeabi_f2d>
+ 8001b6e:	a396      	add	r3, pc, #600	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
+ 8001b70:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001b74:	f7fe fd50 	bl	8000618 <__aeabi_dmul>
+ 8001b78:	4602      	mov	r2, r0
+ 8001b7a:	460b      	mov	r3, r1
+ 8001b7c:	4610      	mov	r0, r2
+ 8001b7e:	4619      	mov	r1, r3
+ 8001b80:	f04f 0200 	mov.w	r2, #0
+ 8001b84:	4b9f      	ldr	r3, [pc, #636]	; (8001e04 <TIM8_UP_TIM13_IRQHandler+0x33c>)
+ 8001b86:	f7fe fe71 	bl	800086c <__aeabi_ddiv>
+ 8001b8a:	4602      	mov	r2, r0
+ 8001b8c:	460b      	mov	r3, r1
+ 8001b8e:	4610      	mov	r0, r2
+ 8001b90:	4619      	mov	r1, r3
+ 8001b92:	a38d      	add	r3, pc, #564	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
+ 8001b94:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001b98:	f7fe fb86 	bl	80002a8 <__aeabi_dsub>
+ 8001b9c:	4602      	mov	r2, r0
+ 8001b9e:	460b      	mov	r3, r1
+ 8001ba0:	4610      	mov	r0, r2
+ 8001ba2:	4619      	mov	r1, r3
+ 8001ba4:	f7ff f830 	bl	8000c08 <__aeabi_d2f>
+ 8001ba8:	4603      	mov	r3, r0
+ 8001baa:	4a97      	ldr	r2, [pc, #604]	; (8001e08 <TIM8_UP_TIM13_IRQHandler+0x340>)
+ 8001bac:	6013      	str	r3, [r2, #0]
 		theta2 = (float) enc3 * enc3_to_rad;
- 8001baa:	4b94      	ldr	r3, [pc, #592]	; (8001dfc <TIM8_UP_TIM13_IRQHandler+0x334>)
- 8001bac:	881b      	ldrh	r3, [r3, #0]
- 8001bae:	b21b      	sxth	r3, r3
- 8001bb0:	ee07 3a90 	vmov	s15, r3
- 8001bb4:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8001bb8:	ee77 7aa7 	vadd.f32	s15, s15, s15
- 8001bbc:	ee17 0a90 	vmov	r0, s15
- 8001bc0:	f7fe fcd2 	bl	8000568 <__aeabi_f2d>
- 8001bc4:	a384      	add	r3, pc, #528	; (adr r3, 8001dd8 <TIM8_UP_TIM13_IRQHandler+0x310>)
- 8001bc6:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001bca:	f7fe fd25 	bl	8000618 <__aeabi_dmul>
- 8001bce:	4602      	mov	r2, r0
- 8001bd0:	460b      	mov	r3, r1
- 8001bd2:	4610      	mov	r0, r2
- 8001bd4:	4619      	mov	r1, r3
- 8001bd6:	f04f 0200 	mov.w	r2, #0
- 8001bda:	4b8d      	ldr	r3, [pc, #564]	; (8001e10 <TIM8_UP_TIM13_IRQHandler+0x348>)
- 8001bdc:	f7fe fe46 	bl	800086c <__aeabi_ddiv>
- 8001be0:	4602      	mov	r2, r0
- 8001be2:	460b      	mov	r3, r1
- 8001be4:	4610      	mov	r0, r2
- 8001be6:	4619      	mov	r1, r3
- 8001be8:	f7ff f80e 	bl	8000c08 <__aeabi_d2f>
- 8001bec:	4603      	mov	r3, r0
- 8001bee:	4a89      	ldr	r2, [pc, #548]	; (8001e14 <TIM8_UP_TIM13_IRQHandler+0x34c>)
- 8001bf0:	6013      	str	r3, [r2, #0]
+ 8001bae:	4b93      	ldr	r3, [pc, #588]	; (8001dfc <TIM8_UP_TIM13_IRQHandler+0x334>)
+ 8001bb0:	881b      	ldrh	r3, [r3, #0]
+ 8001bb2:	b21b      	sxth	r3, r3
+ 8001bb4:	ee07 3a90 	vmov	s15, r3
+ 8001bb8:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8001bbc:	ee77 7aa7 	vadd.f32	s15, s15, s15
+ 8001bc0:	ee17 0a90 	vmov	r0, s15
+ 8001bc4:	f7fe fcd0 	bl	8000568 <__aeabi_f2d>
+ 8001bc8:	a37f      	add	r3, pc, #508	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
+ 8001bca:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001bce:	f7fe fd23 	bl	8000618 <__aeabi_dmul>
+ 8001bd2:	4602      	mov	r2, r0
+ 8001bd4:	460b      	mov	r3, r1
+ 8001bd6:	4610      	mov	r0, r2
+ 8001bd8:	4619      	mov	r1, r3
+ 8001bda:	f04f 0200 	mov.w	r2, #0
+ 8001bde:	4b89      	ldr	r3, [pc, #548]	; (8001e04 <TIM8_UP_TIM13_IRQHandler+0x33c>)
+ 8001be0:	f7fe fe44 	bl	800086c <__aeabi_ddiv>
+ 8001be4:	4602      	mov	r2, r0
+ 8001be6:	460b      	mov	r3, r1
+ 8001be8:	4610      	mov	r0, r2
+ 8001bea:	4619      	mov	r1, r3
+ 8001bec:	f7ff f80c 	bl	8000c08 <__aeabi_d2f>
+ 8001bf0:	4603      	mov	r3, r0
+ 8001bf2:	4a86      	ldr	r2, [pc, #536]	; (8001e0c <TIM8_UP_TIM13_IRQHandler+0x344>)
+ 8001bf4:	6013      	str	r3, [r2, #0]
 		cart_vel = (float) (enc1 - enc1_p) * enc1_to_pos / sample_time;	// 속도값 계산
- 8001bf2:	4b7e      	ldr	r3, [pc, #504]	; (8001dec <TIM8_UP_TIM13_IRQHandler+0x324>)
- 8001bf4:	681a      	ldr	r2, [r3, #0]
- 8001bf6:	4b88      	ldr	r3, [pc, #544]	; (8001e18 <TIM8_UP_TIM13_IRQHandler+0x350>)
- 8001bf8:	681b      	ldr	r3, [r3, #0]
- 8001bfa:	1ad3      	subs	r3, r2, r3
- 8001bfc:	ee07 3a90 	vmov	s15, r3
- 8001c00:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8001c04:	ee17 0a90 	vmov	r0, s15
- 8001c08:	f7fe fcae 	bl	8000568 <__aeabi_f2d>
- 8001c0c:	a36e      	add	r3, pc, #440	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
- 8001c0e:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001c12:	f7fe fd01 	bl	8000618 <__aeabi_dmul>
- 8001c16:	4602      	mov	r2, r0
- 8001c18:	460b      	mov	r3, r1
- 8001c1a:	4610      	mov	r0, r2
- 8001c1c:	4619      	mov	r1, r3
- 8001c1e:	f04f 0200 	mov.w	r2, #0
- 8001c22:	4b77      	ldr	r3, [pc, #476]	; (8001e00 <TIM8_UP_TIM13_IRQHandler+0x338>)
- 8001c24:	f7fe fcf8 	bl	8000618 <__aeabi_dmul>
- 8001c28:	4602      	mov	r2, r0
- 8001c2a:	460b      	mov	r3, r1
- 8001c2c:	4610      	mov	r0, r2
- 8001c2e:	4619      	mov	r1, r3
- 8001c30:	a367      	add	r3, pc, #412	; (adr r3, 8001dd0 <TIM8_UP_TIM13_IRQHandler+0x308>)
- 8001c32:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001c36:	f7fe fe19 	bl	800086c <__aeabi_ddiv>
- 8001c3a:	4602      	mov	r2, r0
- 8001c3c:	460b      	mov	r3, r1
- 8001c3e:	4610      	mov	r0, r2
- 8001c40:	4619      	mov	r1, r3
- 8001c42:	a367      	add	r3, pc, #412	; (adr r3, 8001de0 <TIM8_UP_TIM13_IRQHandler+0x318>)
- 8001c44:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001c48:	f7fe fe10 	bl	800086c <__aeabi_ddiv>
- 8001c4c:	4602      	mov	r2, r0
- 8001c4e:	460b      	mov	r3, r1
- 8001c50:	4610      	mov	r0, r2
- 8001c52:	4619      	mov	r1, r3
- 8001c54:	f7fe ffd8 	bl	8000c08 <__aeabi_d2f>
- 8001c58:	4603      	mov	r3, r0
- 8001c5a:	4a70      	ldr	r2, [pc, #448]	; (8001e1c <TIM8_UP_TIM13_IRQHandler+0x354>)
- 8001c5c:	6013      	str	r3, [r2, #0]
+ 8001bf6:	4b7d      	ldr	r3, [pc, #500]	; (8001dec <TIM8_UP_TIM13_IRQHandler+0x324>)
+ 8001bf8:	681a      	ldr	r2, [r3, #0]
+ 8001bfa:	4b85      	ldr	r3, [pc, #532]	; (8001e10 <TIM8_UP_TIM13_IRQHandler+0x348>)
+ 8001bfc:	681b      	ldr	r3, [r3, #0]
+ 8001bfe:	1ad3      	subs	r3, r2, r3
+ 8001c00:	ee07 3a90 	vmov	s15, r3
+ 8001c04:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8001c08:	ee77 7aa7 	vadd.f32	s15, s15, s15
+ 8001c0c:	ee17 0a90 	vmov	r0, s15
+ 8001c10:	f7fe fcaa 	bl	8000568 <__aeabi_f2d>
+ 8001c14:	a36c      	add	r3, pc, #432	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
+ 8001c16:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001c1a:	f7fe fcfd 	bl	8000618 <__aeabi_dmul>
+ 8001c1e:	4602      	mov	r2, r0
+ 8001c20:	460b      	mov	r3, r1
+ 8001c22:	4610      	mov	r0, r2
+ 8001c24:	4619      	mov	r1, r3
+ 8001c26:	a36a      	add	r3, pc, #424	; (adr r3, 8001dd0 <TIM8_UP_TIM13_IRQHandler+0x308>)
+ 8001c28:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001c2c:	f7fe fcf4 	bl	8000618 <__aeabi_dmul>
+ 8001c30:	4602      	mov	r2, r0
+ 8001c32:	460b      	mov	r3, r1
+ 8001c34:	4610      	mov	r0, r2
+ 8001c36:	4619      	mov	r1, r3
+ 8001c38:	a367      	add	r3, pc, #412	; (adr r3, 8001dd8 <TIM8_UP_TIM13_IRQHandler+0x310>)
+ 8001c3a:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001c3e:	f7fe fe15 	bl	800086c <__aeabi_ddiv>
+ 8001c42:	4602      	mov	r2, r0
+ 8001c44:	460b      	mov	r3, r1
+ 8001c46:	4610      	mov	r0, r2
+ 8001c48:	4619      	mov	r1, r3
+ 8001c4a:	a365      	add	r3, pc, #404	; (adr r3, 8001de0 <TIM8_UP_TIM13_IRQHandler+0x318>)
+ 8001c4c:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001c50:	f7fe fe0c 	bl	800086c <__aeabi_ddiv>
+ 8001c54:	4602      	mov	r2, r0
+ 8001c56:	460b      	mov	r3, r1
+ 8001c58:	4610      	mov	r0, r2
+ 8001c5a:	4619      	mov	r1, r3
+ 8001c5c:	f7fe ffd4 	bl	8000c08 <__aeabi_d2f>
+ 8001c60:	4603      	mov	r3, r0
+ 8001c62:	4a6c      	ldr	r2, [pc, #432]	; (8001e14 <TIM8_UP_TIM13_IRQHandler+0x34c>)
+ 8001c64:	6013      	str	r3, [r2, #0]
 		d_theta1 = (float) (enc2 - enc2_p) * enc2_to_rad / sample_time;	// 각속도값 계산
- 8001c5e:	4b65      	ldr	r3, [pc, #404]	; (8001df4 <TIM8_UP_TIM13_IRQHandler+0x32c>)
- 8001c60:	881b      	ldrh	r3, [r3, #0]
- 8001c62:	b21b      	sxth	r3, r3
- 8001c64:	461a      	mov	r2, r3
- 8001c66:	4b6e      	ldr	r3, [pc, #440]	; (8001e20 <TIM8_UP_TIM13_IRQHandler+0x358>)
+ 8001c66:	4b63      	ldr	r3, [pc, #396]	; (8001df4 <TIM8_UP_TIM13_IRQHandler+0x32c>)
  8001c68:	881b      	ldrh	r3, [r3, #0]
  8001c6a:	b21b      	sxth	r3, r3
- 8001c6c:	1ad3      	subs	r3, r2, r3
- 8001c6e:	ee07 3a90 	vmov	s15, r3
- 8001c72:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8001c76:	ee77 7aa7 	vadd.f32	s15, s15, s15
- 8001c7a:	ee17 0a90 	vmov	r0, s15
- 8001c7e:	f7fe fc73 	bl	8000568 <__aeabi_f2d>
- 8001c82:	a355      	add	r3, pc, #340	; (adr r3, 8001dd8 <TIM8_UP_TIM13_IRQHandler+0x310>)
- 8001c84:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001c88:	f7fe fcc6 	bl	8000618 <__aeabi_dmul>
- 8001c8c:	4602      	mov	r2, r0
- 8001c8e:	460b      	mov	r3, r1
- 8001c90:	4610      	mov	r0, r2
- 8001c92:	4619      	mov	r1, r3
- 8001c94:	f04f 0200 	mov.w	r2, #0
- 8001c98:	4b5b      	ldr	r3, [pc, #364]	; (8001e08 <TIM8_UP_TIM13_IRQHandler+0x340>)
- 8001c9a:	f7fe fde7 	bl	800086c <__aeabi_ddiv>
- 8001c9e:	4602      	mov	r2, r0
- 8001ca0:	460b      	mov	r3, r1
- 8001ca2:	4610      	mov	r0, r2
- 8001ca4:	4619      	mov	r1, r3
- 8001ca6:	a34e      	add	r3, pc, #312	; (adr r3, 8001de0 <TIM8_UP_TIM13_IRQHandler+0x318>)
- 8001ca8:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001cac:	f7fe fdde 	bl	800086c <__aeabi_ddiv>
- 8001cb0:	4602      	mov	r2, r0
- 8001cb2:	460b      	mov	r3, r1
- 8001cb4:	4610      	mov	r0, r2
- 8001cb6:	4619      	mov	r1, r3
- 8001cb8:	f7fe ffa6 	bl	8000c08 <__aeabi_d2f>
- 8001cbc:	4603      	mov	r3, r0
- 8001cbe:	4a59      	ldr	r2, [pc, #356]	; (8001e24 <TIM8_UP_TIM13_IRQHandler+0x35c>)
- 8001cc0:	6013      	str	r3, [r2, #0]
+ 8001c6c:	461a      	mov	r2, r3
+ 8001c6e:	4b6a      	ldr	r3, [pc, #424]	; (8001e18 <TIM8_UP_TIM13_IRQHandler+0x350>)
+ 8001c70:	881b      	ldrh	r3, [r3, #0]
+ 8001c72:	b21b      	sxth	r3, r3
+ 8001c74:	1ad3      	subs	r3, r2, r3
+ 8001c76:	ee07 3a90 	vmov	s15, r3
+ 8001c7a:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8001c7e:	ee77 7aa7 	vadd.f32	s15, s15, s15
+ 8001c82:	ee17 0a90 	vmov	r0, s15
+ 8001c86:	f7fe fc6f 	bl	8000568 <__aeabi_f2d>
+ 8001c8a:	a34f      	add	r3, pc, #316	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
+ 8001c8c:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001c90:	f7fe fcc2 	bl	8000618 <__aeabi_dmul>
+ 8001c94:	4602      	mov	r2, r0
+ 8001c96:	460b      	mov	r3, r1
+ 8001c98:	4610      	mov	r0, r2
+ 8001c9a:	4619      	mov	r1, r3
+ 8001c9c:	f04f 0200 	mov.w	r2, #0
+ 8001ca0:	4b58      	ldr	r3, [pc, #352]	; (8001e04 <TIM8_UP_TIM13_IRQHandler+0x33c>)
+ 8001ca2:	f7fe fde3 	bl	800086c <__aeabi_ddiv>
+ 8001ca6:	4602      	mov	r2, r0
+ 8001ca8:	460b      	mov	r3, r1
+ 8001caa:	4610      	mov	r0, r2
+ 8001cac:	4619      	mov	r1, r3
+ 8001cae:	a34c      	add	r3, pc, #304	; (adr r3, 8001de0 <TIM8_UP_TIM13_IRQHandler+0x318>)
+ 8001cb0:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001cb4:	f7fe fdda 	bl	800086c <__aeabi_ddiv>
+ 8001cb8:	4602      	mov	r2, r0
+ 8001cba:	460b      	mov	r3, r1
+ 8001cbc:	4610      	mov	r0, r2
+ 8001cbe:	4619      	mov	r1, r3
+ 8001cc0:	f7fe ffa2 	bl	8000c08 <__aeabi_d2f>
+ 8001cc4:	4603      	mov	r3, r0
+ 8001cc6:	4a55      	ldr	r2, [pc, #340]	; (8001e1c <TIM8_UP_TIM13_IRQHandler+0x354>)
+ 8001cc8:	6013      	str	r3, [r2, #0]
 		d_theta2 = (float) (enc3 - enc3_p) * enc3_to_rad / sample_time;	// 각속도값 계산
- 8001cc2:	4b4e      	ldr	r3, [pc, #312]	; (8001dfc <TIM8_UP_TIM13_IRQHandler+0x334>)
- 8001cc4:	881b      	ldrh	r3, [r3, #0]
- 8001cc6:	b21b      	sxth	r3, r3
- 8001cc8:	461a      	mov	r2, r3
- 8001cca:	4b57      	ldr	r3, [pc, #348]	; (8001e28 <TIM8_UP_TIM13_IRQHandler+0x360>)
+ 8001cca:	4b4c      	ldr	r3, [pc, #304]	; (8001dfc <TIM8_UP_TIM13_IRQHandler+0x334>)
  8001ccc:	881b      	ldrh	r3, [r3, #0]
  8001cce:	b21b      	sxth	r3, r3
- 8001cd0:	1ad3      	subs	r3, r2, r3
- 8001cd2:	ee07 3a90 	vmov	s15, r3
- 8001cd6:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8001cda:	ee77 7aa7 	vadd.f32	s15, s15, s15
- 8001cde:	ee17 0a90 	vmov	r0, s15
- 8001ce2:	f7fe fc41 	bl	8000568 <__aeabi_f2d>
- 8001ce6:	a33c      	add	r3, pc, #240	; (adr r3, 8001dd8 <TIM8_UP_TIM13_IRQHandler+0x310>)
- 8001ce8:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001cec:	f7fe fc94 	bl	8000618 <__aeabi_dmul>
- 8001cf0:	4602      	mov	r2, r0
- 8001cf2:	460b      	mov	r3, r1
- 8001cf4:	4610      	mov	r0, r2
- 8001cf6:	4619      	mov	r1, r3
- 8001cf8:	f04f 0200 	mov.w	r2, #0
- 8001cfc:	4b44      	ldr	r3, [pc, #272]	; (8001e10 <TIM8_UP_TIM13_IRQHandler+0x348>)
- 8001cfe:	f7fe fdb5 	bl	800086c <__aeabi_ddiv>
- 8001d02:	4602      	mov	r2, r0
- 8001d04:	460b      	mov	r3, r1
- 8001d06:	4610      	mov	r0, r2
- 8001d08:	4619      	mov	r1, r3
- 8001d0a:	a335      	add	r3, pc, #212	; (adr r3, 8001de0 <TIM8_UP_TIM13_IRQHandler+0x318>)
- 8001d0c:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001d10:	f7fe fdac 	bl	800086c <__aeabi_ddiv>
- 8001d14:	4602      	mov	r2, r0
- 8001d16:	460b      	mov	r3, r1
- 8001d18:	4610      	mov	r0, r2
- 8001d1a:	4619      	mov	r1, r3
- 8001d1c:	f7fe ff74 	bl	8000c08 <__aeabi_d2f>
- 8001d20:	4603      	mov	r3, r0
- 8001d22:	4a42      	ldr	r2, [pc, #264]	; (8001e2c <TIM8_UP_TIM13_IRQHandler+0x364>)
- 8001d24:	6013      	str	r3, [r2, #0]
+ 8001cd0:	461a      	mov	r2, r3
+ 8001cd2:	4b53      	ldr	r3, [pc, #332]	; (8001e20 <TIM8_UP_TIM13_IRQHandler+0x358>)
+ 8001cd4:	881b      	ldrh	r3, [r3, #0]
+ 8001cd6:	b21b      	sxth	r3, r3
+ 8001cd8:	1ad3      	subs	r3, r2, r3
+ 8001cda:	ee07 3a90 	vmov	s15, r3
+ 8001cde:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8001ce2:	ee77 7aa7 	vadd.f32	s15, s15, s15
+ 8001ce6:	ee17 0a90 	vmov	r0, s15
+ 8001cea:	f7fe fc3d 	bl	8000568 <__aeabi_f2d>
+ 8001cee:	a336      	add	r3, pc, #216	; (adr r3, 8001dc8 <TIM8_UP_TIM13_IRQHandler+0x300>)
+ 8001cf0:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001cf4:	f7fe fc90 	bl	8000618 <__aeabi_dmul>
+ 8001cf8:	4602      	mov	r2, r0
+ 8001cfa:	460b      	mov	r3, r1
+ 8001cfc:	4610      	mov	r0, r2
+ 8001cfe:	4619      	mov	r1, r3
+ 8001d00:	f04f 0200 	mov.w	r2, #0
+ 8001d04:	4b3f      	ldr	r3, [pc, #252]	; (8001e04 <TIM8_UP_TIM13_IRQHandler+0x33c>)
+ 8001d06:	f7fe fdb1 	bl	800086c <__aeabi_ddiv>
+ 8001d0a:	4602      	mov	r2, r0
+ 8001d0c:	460b      	mov	r3, r1
+ 8001d0e:	4610      	mov	r0, r2
+ 8001d10:	4619      	mov	r1, r3
+ 8001d12:	a333      	add	r3, pc, #204	; (adr r3, 8001de0 <TIM8_UP_TIM13_IRQHandler+0x318>)
+ 8001d14:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001d18:	f7fe fda8 	bl	800086c <__aeabi_ddiv>
+ 8001d1c:	4602      	mov	r2, r0
+ 8001d1e:	460b      	mov	r3, r1
+ 8001d20:	4610      	mov	r0, r2
+ 8001d22:	4619      	mov	r1, r3
+ 8001d24:	f7fe ff70 	bl	8000c08 <__aeabi_d2f>
+ 8001d28:	4603      	mov	r3, r0
+ 8001d2a:	4a3e      	ldr	r2, [pc, #248]	; (8001e24 <TIM8_UP_TIM13_IRQHandler+0x35c>)
+ 8001d2c:	6013      	str	r3, [r2, #0]
 		cart_int += cart_pos * sample_time;
- 8001d26:	4b37      	ldr	r3, [pc, #220]	; (8001e04 <TIM8_UP_TIM13_IRQHandler+0x33c>)
- 8001d28:	681b      	ldr	r3, [r3, #0]
- 8001d2a:	4618      	mov	r0, r3
- 8001d2c:	f7fe fc1c 	bl	8000568 <__aeabi_f2d>
- 8001d30:	a32b      	add	r3, pc, #172	; (adr r3, 8001de0 <TIM8_UP_TIM13_IRQHandler+0x318>)
- 8001d32:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001d36:	f7fe fc6f 	bl	8000618 <__aeabi_dmul>
- 8001d3a:	4602      	mov	r2, r0
- 8001d3c:	460b      	mov	r3, r1
- 8001d3e:	4614      	mov	r4, r2
- 8001d40:	461d      	mov	r5, r3
- 8001d42:	4b3b      	ldr	r3, [pc, #236]	; (8001e30 <TIM8_UP_TIM13_IRQHandler+0x368>)
- 8001d44:	681b      	ldr	r3, [r3, #0]
- 8001d46:	4618      	mov	r0, r3
- 8001d48:	f7fe fc0e 	bl	8000568 <__aeabi_f2d>
- 8001d4c:	4602      	mov	r2, r0
- 8001d4e:	460b      	mov	r3, r1
- 8001d50:	4620      	mov	r0, r4
- 8001d52:	4629      	mov	r1, r5
- 8001d54:	f7fe faaa 	bl	80002ac <__adddf3>
- 8001d58:	4602      	mov	r2, r0
- 8001d5a:	460b      	mov	r3, r1
- 8001d5c:	4610      	mov	r0, r2
- 8001d5e:	4619      	mov	r1, r3
- 8001d60:	f7fe ff52 	bl	8000c08 <__aeabi_d2f>
- 8001d64:	4603      	mov	r3, r0
- 8001d66:	4a32      	ldr	r2, [pc, #200]	; (8001e30 <TIM8_UP_TIM13_IRQHandler+0x368>)
- 8001d68:	6013      	str	r3, [r2, #0]
+ 8001d2e:	4b34      	ldr	r3, [pc, #208]	; (8001e00 <TIM8_UP_TIM13_IRQHandler+0x338>)
+ 8001d30:	681b      	ldr	r3, [r3, #0]
+ 8001d32:	4618      	mov	r0, r3
+ 8001d34:	f7fe fc18 	bl	8000568 <__aeabi_f2d>
+ 8001d38:	a329      	add	r3, pc, #164	; (adr r3, 8001de0 <TIM8_UP_TIM13_IRQHandler+0x318>)
+ 8001d3a:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001d3e:	f7fe fc6b 	bl	8000618 <__aeabi_dmul>
+ 8001d42:	4602      	mov	r2, r0
+ 8001d44:	460b      	mov	r3, r1
+ 8001d46:	4614      	mov	r4, r2
+ 8001d48:	461d      	mov	r5, r3
+ 8001d4a:	4b37      	ldr	r3, [pc, #220]	; (8001e28 <TIM8_UP_TIM13_IRQHandler+0x360>)
+ 8001d4c:	681b      	ldr	r3, [r3, #0]
+ 8001d4e:	4618      	mov	r0, r3
+ 8001d50:	f7fe fc0a 	bl	8000568 <__aeabi_f2d>
+ 8001d54:	4602      	mov	r2, r0
+ 8001d56:	460b      	mov	r3, r1
+ 8001d58:	4620      	mov	r0, r4
+ 8001d5a:	4629      	mov	r1, r5
+ 8001d5c:	f7fe faa6 	bl	80002ac <__adddf3>
+ 8001d60:	4602      	mov	r2, r0
+ 8001d62:	460b      	mov	r3, r1
+ 8001d64:	4610      	mov	r0, r2
+ 8001d66:	4619      	mov	r1, r3
+ 8001d68:	f7fe ff4e 	bl	8000c08 <__aeabi_d2f>
+ 8001d6c:	4603      	mov	r3, r0
+ 8001d6e:	4a2e      	ldr	r2, [pc, #184]	; (8001e28 <TIM8_UP_TIM13_IRQHandler+0x360>)
+ 8001d70:	6013      	str	r3, [r2, #0]
 
 		// 미분 계산을 위해 과거값 저장
 		enc1_p = enc1;
- 8001d6a:	4b20      	ldr	r3, [pc, #128]	; (8001dec <TIM8_UP_TIM13_IRQHandler+0x324>)
- 8001d6c:	681b      	ldr	r3, [r3, #0]
- 8001d6e:	4a2a      	ldr	r2, [pc, #168]	; (8001e18 <TIM8_UP_TIM13_IRQHandler+0x350>)
- 8001d70:	6013      	str	r3, [r2, #0]
+ 8001d72:	4b1e      	ldr	r3, [pc, #120]	; (8001dec <TIM8_UP_TIM13_IRQHandler+0x324>)
+ 8001d74:	681b      	ldr	r3, [r3, #0]
+ 8001d76:	4a26      	ldr	r2, [pc, #152]	; (8001e10 <TIM8_UP_TIM13_IRQHandler+0x348>)
+ 8001d78:	6013      	str	r3, [r2, #0]
 		enc2_p = enc2;
- 8001d72:	4b20      	ldr	r3, [pc, #128]	; (8001df4 <TIM8_UP_TIM13_IRQHandler+0x32c>)
- 8001d74:	881b      	ldrh	r3, [r3, #0]
- 8001d76:	b21a      	sxth	r2, r3
- 8001d78:	4b29      	ldr	r3, [pc, #164]	; (8001e20 <TIM8_UP_TIM13_IRQHandler+0x358>)
- 8001d7a:	801a      	strh	r2, [r3, #0]
+ 8001d7a:	4b1e      	ldr	r3, [pc, #120]	; (8001df4 <TIM8_UP_TIM13_IRQHandler+0x32c>)
+ 8001d7c:	881b      	ldrh	r3, [r3, #0]
+ 8001d7e:	b21a      	sxth	r2, r3
+ 8001d80:	4b25      	ldr	r3, [pc, #148]	; (8001e18 <TIM8_UP_TIM13_IRQHandler+0x350>)
+ 8001d82:	801a      	strh	r2, [r3, #0]
 		enc3_p = enc3;
- 8001d7c:	4b1f      	ldr	r3, [pc, #124]	; (8001dfc <TIM8_UP_TIM13_IRQHandler+0x334>)
- 8001d7e:	881b      	ldrh	r3, [r3, #0]
- 8001d80:	b21a      	sxth	r2, r3
- 8001d82:	4b29      	ldr	r3, [pc, #164]	; (8001e28 <TIM8_UP_TIM13_IRQHandler+0x360>)
- 8001d84:	801a      	strh	r2, [r3, #0]
+ 8001d84:	4b1d      	ldr	r3, [pc, #116]	; (8001dfc <TIM8_UP_TIM13_IRQHandler+0x334>)
+ 8001d86:	881b      	ldrh	r3, [r3, #0]
+ 8001d88:	b21a      	sxth	r2, r3
+ 8001d8a:	4b25      	ldr	r3, [pc, #148]	; (8001e20 <TIM8_UP_TIM13_IRQHandler+0x358>)
+ 8001d8c:	801a      	strh	r2, [r3, #0]
 
 		// 천이 신호가 있을 때, 천이 제어 시작하는 부분
 		if (tr_flag) {
- 8001d86:	4b2b      	ldr	r3, [pc, #172]	; (8001e34 <TIM8_UP_TIM13_IRQHandler+0x36c>)
- 8001d88:	781b      	ldrb	r3, [r3, #0]
- 8001d8a:	b2db      	uxtb	r3, r3
- 8001d8c:	2b00      	cmp	r3, #0
- 8001d8e:	f000 80aa 	beq.w	8001ee6 <TIM8_UP_TIM13_IRQHandler+0x41e>
+ 8001d8e:	4b27      	ldr	r3, [pc, #156]	; (8001e2c <TIM8_UP_TIM13_IRQHandler+0x364>)
+ 8001d90:	781b      	ldrb	r3, [r3, #0]
+ 8001d92:	b2db      	uxtb	r3, r3
+ 8001d94:	2b00      	cmp	r3, #0
+ 8001d96:	f000 80a4 	beq.w	8001ee2 <TIM8_UP_TIM13_IRQHandler+0x41a>
 
 			// 현재 시간이, 천이 시간보다 작다면 다음의 천이 부분을 수행한다.
 			if (time_r <= TRnnt[DIP_point_cnt-1] + time_ff) {
- 8001d92:	4b29      	ldr	r3, [pc, #164]	; (8001e38 <TIM8_UP_TIM13_IRQHandler+0x370>)
- 8001d94:	f8d3 3280 	ldr.w	r3, [r3, #640]	; 0x280
- 8001d98:	4618      	mov	r0, r3
- 8001d9a:	f7fe fbe5 	bl	8000568 <__aeabi_f2d>
- 8001d9e:	4b27      	ldr	r3, [pc, #156]	; (8001e3c <TIM8_UP_TIM13_IRQHandler+0x374>)
- 8001da0:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001da4:	f7fe fa82 	bl	80002ac <__adddf3>
- 8001da8:	4602      	mov	r2, r0
- 8001daa:	460b      	mov	r3, r1
- 8001dac:	4610      	mov	r0, r2
- 8001dae:	4619      	mov	r1, r3
- 8001db0:	4b23      	ldr	r3, [pc, #140]	; (8001e40 <TIM8_UP_TIM13_IRQHandler+0x378>)
- 8001db2:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001db6:	f7fe feb5 	bl	8000b24 <__aeabi_dcmpge>
- 8001dba:	4603      	mov	r3, r0
- 8001dbc:	2b00      	cmp	r3, #0
- 8001dbe:	f000 8087 	beq.w	8001ed0 <TIM8_UP_TIM13_IRQHandler+0x408>
- 8001dc2:	e03f      	b.n	8001e44 <TIM8_UP_TIM13_IRQHandler+0x37c>
- 8001dc4:	f3af 8000 	nop.w
- 8001dc8:	d2f1a9fc 	.word	0xd2f1a9fc
- 8001dcc:	3f60624d 	.word	0x3f60624d
- 8001dd0:	00000000 	.word	0x00000000
- 8001dd4:	40d38800 	.word	0x40d38800
- 8001dd8:	53c8d4f1 	.word	0x53c8d4f1
- 8001ddc:	400921fb 	.word	0x400921fb
+ 8001d9a:	4b25      	ldr	r3, [pc, #148]	; (8001e30 <TIM8_UP_TIM13_IRQHandler+0x368>)
+ 8001d9c:	f8d3 3280 	ldr.w	r3, [r3, #640]	; 0x280
+ 8001da0:	4618      	mov	r0, r3
+ 8001da2:	f7fe fbe1 	bl	8000568 <__aeabi_f2d>
+ 8001da6:	4b23      	ldr	r3, [pc, #140]	; (8001e34 <TIM8_UP_TIM13_IRQHandler+0x36c>)
+ 8001da8:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001dac:	f7fe fa7e 	bl	80002ac <__adddf3>
+ 8001db0:	4602      	mov	r2, r0
+ 8001db2:	460b      	mov	r3, r1
+ 8001db4:	4610      	mov	r0, r2
+ 8001db6:	4619      	mov	r1, r3
+ 8001db8:	4b1f      	ldr	r3, [pc, #124]	; (8001e38 <TIM8_UP_TIM13_IRQHandler+0x370>)
+ 8001dba:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001dbe:	f7fe feb1 	bl	8000b24 <__aeabi_dcmpge>
+ 8001dc2:	4603      	mov	r3, r0
+ 8001dc4:	e03a      	b.n	8001e3c <TIM8_UP_TIM13_IRQHandler+0x374>
+ 8001dc6:	bf00      	nop
+ 8001dc8:	53c8d4f1 	.word	0x53c8d4f1
+ 8001dcc:	400921fb 	.word	0x400921fb
+ 8001dd0:	6a7ef9db 	.word	0x6a7ef9db
+ 8001dd4:	3f8374bc 	.word	0x3f8374bc
+ 8001dd8:	00000000 	.word	0x00000000
+ 8001ddc:	40d38800 	.word	0x40d38800
  8001de0:	d2f1a9fc 	.word	0xd2f1a9fc
  8001de4:	3f50624d 	.word	0x3f50624d
  8001de8:	40010400 	.word	0x40010400
@@ -3224,283 +3224,284 @@ void TIM8_UP_TIM13_IRQHandler() // IRQ Handler의 이름은 startup_stm32f407xx.
  8001df4:	200041e8 	.word	0x200041e8
  8001df8:	40000800 	.word	0x40000800
  8001dfc:	200041ec 	.word	0x200041ec
- 8001e00:	40430000 	.word	0x40430000
- 8001e04:	200041f0 	.word	0x200041f0
- 8001e08:	40c00000 	.word	0x40c00000
- 8001e0c:	20004200 	.word	0x20004200
- 8001e10:	40b00000 	.word	0x40b00000
- 8001e14:	20004204 	.word	0x20004204
- 8001e18:	200041e4 	.word	0x200041e4
- 8001e1c:	200041f4 	.word	0x200041f4
- 8001e20:	200041ea 	.word	0x200041ea
- 8001e24:	20004208 	.word	0x20004208
- 8001e28:	200041ee 	.word	0x200041ee
- 8001e2c:	2000420c 	.word	0x2000420c
- 8001e30:	200041fc 	.word	0x200041fc
- 8001e34:	20004231 	.word	0x20004231
- 8001e38:	2000194c 	.word	0x2000194c
- 8001e3c:	20004220 	.word	0x20004220
- 8001e40:	20004218 	.word	0x20004218
+ 8001e00:	200041f0 	.word	0x200041f0
+ 8001e04:	40c00000 	.word	0x40c00000
+ 8001e08:	20004200 	.word	0x20004200
+ 8001e0c:	20004204 	.word	0x20004204
+ 8001e10:	200041e4 	.word	0x200041e4
+ 8001e14:	200041f4 	.word	0x200041f4
+ 8001e18:	200041ea 	.word	0x200041ea
+ 8001e1c:	20004208 	.word	0x20004208
+ 8001e20:	200041ee 	.word	0x200041ee
+ 8001e24:	2000420c 	.word	0x2000420c
+ 8001e28:	200041fc 	.word	0x200041fc
+ 8001e2c:	20004231 	.word	0x20004231
+ 8001e30:	2000194c 	.word	0x2000194c
+ 8001e34:	20004220 	.word	0x20004220
+ 8001e38:	20004218 	.word	0x20004218
+ 8001e3c:	2b00      	cmp	r3, #0
+ 8001e3e:	d045      	beq.n	8001ecc <TIM8_UP_TIM13_IRQHandler+0x404>
 				// 선형 보간을 통해 스윙업 궤적을 저장하는 부분으로, 각각 feedforward 상태변수, LQ보상, 입력변수를 업데이트한다.
 				calculate_interpolation7(TRnnt, TRnnx, DIP_point_cnt, time_r - time_ff, FF_x);
- 8001e44:	4b8e      	ldr	r3, [pc, #568]	; (8002080 <TIM8_UP_TIM13_IRQHandler+0x5b8>)
- 8001e46:	e9d3 0100 	ldrd	r0, r1, [r3]
- 8001e4a:	4b8e      	ldr	r3, [pc, #568]	; (8002084 <TIM8_UP_TIM13_IRQHandler+0x5bc>)
- 8001e4c:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001e50:	f7fe fa2a 	bl	80002a8 <__aeabi_dsub>
- 8001e54:	4602      	mov	r2, r0
- 8001e56:	460b      	mov	r3, r1
- 8001e58:	4610      	mov	r0, r2
- 8001e5a:	4619      	mov	r1, r3
- 8001e5c:	f7fe fed4 	bl	8000c08 <__aeabi_d2f>
- 8001e60:	4602      	mov	r2, r0
- 8001e62:	4b89      	ldr	r3, [pc, #548]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001e64:	ee00 2a10 	vmov	s0, r2
- 8001e68:	22a1      	movs	r2, #161	; 0xa1
- 8001e6a:	4988      	ldr	r1, [pc, #544]	; (800208c <TIM8_UP_TIM13_IRQHandler+0x5c4>)
- 8001e6c:	4888      	ldr	r0, [pc, #544]	; (8002090 <TIM8_UP_TIM13_IRQHandler+0x5c8>)
- 8001e6e:	f000 fa69 	bl	8002344 <calculate_interpolation7>
+ 8001e40:	4b8f      	ldr	r3, [pc, #572]	; (8002080 <TIM8_UP_TIM13_IRQHandler+0x5b8>)
+ 8001e42:	e9d3 0100 	ldrd	r0, r1, [r3]
+ 8001e46:	4b8f      	ldr	r3, [pc, #572]	; (8002084 <TIM8_UP_TIM13_IRQHandler+0x5bc>)
+ 8001e48:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001e4c:	f7fe fa2c 	bl	80002a8 <__aeabi_dsub>
+ 8001e50:	4602      	mov	r2, r0
+ 8001e52:	460b      	mov	r3, r1
+ 8001e54:	4610      	mov	r0, r2
+ 8001e56:	4619      	mov	r1, r3
+ 8001e58:	f7fe fed6 	bl	8000c08 <__aeabi_d2f>
+ 8001e5c:	4602      	mov	r2, r0
+ 8001e5e:	4b8a      	ldr	r3, [pc, #552]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001e60:	ee00 2a10 	vmov	s0, r2
+ 8001e64:	22a1      	movs	r2, #161	; 0xa1
+ 8001e66:	4989      	ldr	r1, [pc, #548]	; (800208c <TIM8_UP_TIM13_IRQHandler+0x5c4>)
+ 8001e68:	4889      	ldr	r0, [pc, #548]	; (8002090 <TIM8_UP_TIM13_IRQHandler+0x5c8>)
+ 8001e6a:	f000 fa6b 	bl	8002344 <calculate_interpolation7>
 				calculate_interpolation7(TRnnt, TRnnK, DIP_point_cnt, time_r - time_ff, FF_K);
- 8001e72:	4b83      	ldr	r3, [pc, #524]	; (8002080 <TIM8_UP_TIM13_IRQHandler+0x5b8>)
- 8001e74:	e9d3 0100 	ldrd	r0, r1, [r3]
- 8001e78:	4b82      	ldr	r3, [pc, #520]	; (8002084 <TIM8_UP_TIM13_IRQHandler+0x5bc>)
- 8001e7a:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001e7e:	f7fe fa13 	bl	80002a8 <__aeabi_dsub>
- 8001e82:	4602      	mov	r2, r0
- 8001e84:	460b      	mov	r3, r1
- 8001e86:	4610      	mov	r0, r2
- 8001e88:	4619      	mov	r1, r3
- 8001e8a:	f7fe febd 	bl	8000c08 <__aeabi_d2f>
- 8001e8e:	4602      	mov	r2, r0
- 8001e90:	4b80      	ldr	r3, [pc, #512]	; (8002094 <TIM8_UP_TIM13_IRQHandler+0x5cc>)
- 8001e92:	ee00 2a10 	vmov	s0, r2
- 8001e96:	22a1      	movs	r2, #161	; 0xa1
- 8001e98:	497f      	ldr	r1, [pc, #508]	; (8002098 <TIM8_UP_TIM13_IRQHandler+0x5d0>)
- 8001e9a:	487d      	ldr	r0, [pc, #500]	; (8002090 <TIM8_UP_TIM13_IRQHandler+0x5c8>)
- 8001e9c:	f000 fa52 	bl	8002344 <calculate_interpolation7>
+ 8001e6e:	4b84      	ldr	r3, [pc, #528]	; (8002080 <TIM8_UP_TIM13_IRQHandler+0x5b8>)
+ 8001e70:	e9d3 0100 	ldrd	r0, r1, [r3]
+ 8001e74:	4b83      	ldr	r3, [pc, #524]	; (8002084 <TIM8_UP_TIM13_IRQHandler+0x5bc>)
+ 8001e76:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001e7a:	f7fe fa15 	bl	80002a8 <__aeabi_dsub>
+ 8001e7e:	4602      	mov	r2, r0
+ 8001e80:	460b      	mov	r3, r1
+ 8001e82:	4610      	mov	r0, r2
+ 8001e84:	4619      	mov	r1, r3
+ 8001e86:	f7fe febf 	bl	8000c08 <__aeabi_d2f>
+ 8001e8a:	4602      	mov	r2, r0
+ 8001e8c:	4b81      	ldr	r3, [pc, #516]	; (8002094 <TIM8_UP_TIM13_IRQHandler+0x5cc>)
+ 8001e8e:	ee00 2a10 	vmov	s0, r2
+ 8001e92:	22a1      	movs	r2, #161	; 0xa1
+ 8001e94:	4980      	ldr	r1, [pc, #512]	; (8002098 <TIM8_UP_TIM13_IRQHandler+0x5d0>)
+ 8001e96:	487e      	ldr	r0, [pc, #504]	; (8002090 <TIM8_UP_TIM13_IRQHandler+0x5c8>)
+ 8001e98:	f000 fa54 	bl	8002344 <calculate_interpolation7>
 				calculate_interpolation1(TRnnt, TRnnu, DIP_point_cnt, time_r - time_ff, &FF_u);
- 8001ea0:	4b77      	ldr	r3, [pc, #476]	; (8002080 <TIM8_UP_TIM13_IRQHandler+0x5b8>)
- 8001ea2:	e9d3 0100 	ldrd	r0, r1, [r3]
- 8001ea6:	4b77      	ldr	r3, [pc, #476]	; (8002084 <TIM8_UP_TIM13_IRQHandler+0x5bc>)
- 8001ea8:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001eac:	f7fe f9fc 	bl	80002a8 <__aeabi_dsub>
- 8001eb0:	4602      	mov	r2, r0
- 8001eb2:	460b      	mov	r3, r1
- 8001eb4:	4610      	mov	r0, r2
- 8001eb6:	4619      	mov	r1, r3
- 8001eb8:	f7fe fea6 	bl	8000c08 <__aeabi_d2f>
- 8001ebc:	4602      	mov	r2, r0
- 8001ebe:	4b77      	ldr	r3, [pc, #476]	; (800209c <TIM8_UP_TIM13_IRQHandler+0x5d4>)
- 8001ec0:	ee00 2a10 	vmov	s0, r2
- 8001ec4:	22a1      	movs	r2, #161	; 0xa1
- 8001ec6:	4976      	ldr	r1, [pc, #472]	; (80020a0 <TIM8_UP_TIM13_IRQHandler+0x5d8>)
- 8001ec8:	4871      	ldr	r0, [pc, #452]	; (8002090 <TIM8_UP_TIM13_IRQHandler+0x5c8>)
- 8001eca:	f000 fab9 	bl	8002440 <calculate_interpolation1>
- 8001ece:	e002      	b.n	8001ed6 <TIM8_UP_TIM13_IRQHandler+0x40e>
+ 8001e9c:	4b78      	ldr	r3, [pc, #480]	; (8002080 <TIM8_UP_TIM13_IRQHandler+0x5b8>)
+ 8001e9e:	e9d3 0100 	ldrd	r0, r1, [r3]
+ 8001ea2:	4b78      	ldr	r3, [pc, #480]	; (8002084 <TIM8_UP_TIM13_IRQHandler+0x5bc>)
+ 8001ea4:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001ea8:	f7fe f9fe 	bl	80002a8 <__aeabi_dsub>
+ 8001eac:	4602      	mov	r2, r0
+ 8001eae:	460b      	mov	r3, r1
+ 8001eb0:	4610      	mov	r0, r2
+ 8001eb2:	4619      	mov	r1, r3
+ 8001eb4:	f7fe fea8 	bl	8000c08 <__aeabi_d2f>
+ 8001eb8:	4602      	mov	r2, r0
+ 8001eba:	4b78      	ldr	r3, [pc, #480]	; (800209c <TIM8_UP_TIM13_IRQHandler+0x5d4>)
+ 8001ebc:	ee00 2a10 	vmov	s0, r2
+ 8001ec0:	22a1      	movs	r2, #161	; 0xa1
+ 8001ec2:	4977      	ldr	r1, [pc, #476]	; (80020a0 <TIM8_UP_TIM13_IRQHandler+0x5d8>)
+ 8001ec4:	4872      	ldr	r0, [pc, #456]	; (8002090 <TIM8_UP_TIM13_IRQHandler+0x5c8>)
+ 8001ec6:	f000 fabb 	bl	8002440 <calculate_interpolation1>
+ 8001eca:	e002      	b.n	8001ed2 <TIM8_UP_TIM13_IRQHandler+0x40a>
 			}
 			// 천이 시간이 넘어서면, tr_flag를 false시켜 천이를 종료한다.
 			else
 				tr_flag = false;
- 8001ed0:	4b74      	ldr	r3, [pc, #464]	; (80020a4 <TIM8_UP_TIM13_IRQHandler+0x5dc>)
- 8001ed2:	2200      	movs	r2, #0
- 8001ed4:	701a      	strb	r2, [r3, #0]
+ 8001ecc:	4b75      	ldr	r3, [pc, #468]	; (80020a4 <TIM8_UP_TIM13_IRQHandler+0x5dc>)
+ 8001ece:	2200      	movs	r2, #0
+ 8001ed0:	701a      	strb	r2, [r3, #0]
 
 			time_L = 0; // 선형 구간이 아니면, 값을 초기화 시킨다.
- 8001ed6:	4974      	ldr	r1, [pc, #464]	; (80020a8 <TIM8_UP_TIM13_IRQHandler+0x5e0>)
- 8001ed8:	f04f 0200 	mov.w	r2, #0
- 8001edc:	f04f 0300 	mov.w	r3, #0
- 8001ee0:	e9c1 2300 	strd	r2, r3, [r1]
- 8001ee4:	e03d      	b.n	8001f62 <TIM8_UP_TIM13_IRQHandler+0x49a>
+ 8001ed2:	4975      	ldr	r1, [pc, #468]	; (80020a8 <TIM8_UP_TIM13_IRQHandler+0x5e0>)
+ 8001ed4:	f04f 0200 	mov.w	r2, #0
+ 8001ed8:	f04f 0300 	mov.w	r3, #0
+ 8001edc:	e9c1 2300 	strd	r2, r3, [r1]
+ 8001ee0:	e03d      	b.n	8001f5e <TIM8_UP_TIM13_IRQHandler+0x496>
 		// 천이 신호가 없을 때, 선형 제어를 유지하는 부분이다.
 		else {
 			// 가장 처음에, 아무런 입럭을 주고 있지 않다면, EP0을 유지하는 선형 제어 부분이 필요하다.
 			// m값을 그대로 사용하면, SD카드에서 값을 읽어올 때 m값을 사용하는데, 아직 SD카드의 값을 읽어오는 과정이므로, 문제가 생긴다.
 			// 따라서 SD카드가 값을 다 읽기 전까지는 바닥상태를 유지하기 위해 과거값을 이용한다.
 			if (m_p == 0) {
- 8001ee6:	4b71      	ldr	r3, [pc, #452]	; (80020ac <TIM8_UP_TIM13_IRQHandler+0x5e4>)
- 8001ee8:	781b      	ldrb	r3, [r3, #0]
- 8001eea:	b2db      	uxtb	r3, r3
- 8001eec:	2b00      	cmp	r3, #0
- 8001eee:	d10d      	bne.n	8001f0c <TIM8_UP_TIM13_IRQHandler+0x444>
+ 8001ee2:	4b72      	ldr	r3, [pc, #456]	; (80020ac <TIM8_UP_TIM13_IRQHandler+0x5e4>)
+ 8001ee4:	781b      	ldrb	r3, [r3, #0]
+ 8001ee6:	b2db      	uxtb	r3, r3
+ 8001ee8:	2b00      	cmp	r3, #0
+ 8001eea:	d10d      	bne.n	8001f08 <TIM8_UP_TIM13_IRQHandler+0x440>
 				// EP0은 theta1 부분만 -pi이므로 종단 값을 다음과 같이 표기했다.
 				FF_x[1] = -PI;
- 8001ef0:	4b65      	ldr	r3, [pc, #404]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001ef2:	4a6f      	ldr	r2, [pc, #444]	; (80020b0 <TIM8_UP_TIM13_IRQHandler+0x5e8>)
- 8001ef4:	605a      	str	r2, [r3, #4]
+ 8001eec:	4b66      	ldr	r3, [pc, #408]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001eee:	4a70      	ldr	r2, [pc, #448]	; (80020b0 <TIM8_UP_TIM13_IRQHandler+0x5e8>)
+ 8001ef0:	605a      	str	r2, [r3, #4]
 				memcpy(FF_K, EPnK, sizeof(FF_K));
- 8001ef6:	4a67      	ldr	r2, [pc, #412]	; (8002094 <TIM8_UP_TIM13_IRQHandler+0x5cc>)
- 8001ef8:	4b6e      	ldr	r3, [pc, #440]	; (80020b4 <TIM8_UP_TIM13_IRQHandler+0x5ec>)
- 8001efa:	4614      	mov	r4, r2
- 8001efc:	461d      	mov	r5, r3
- 8001efe:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
- 8001f00:	c40f      	stmia	r4!, {r0, r1, r2, r3}
- 8001f02:	e895 0007 	ldmia.w	r5, {r0, r1, r2}
- 8001f06:	e884 0007 	stmia.w	r4, {r0, r1, r2}
- 8001f0a:	e019      	b.n	8001f40 <TIM8_UP_TIM13_IRQHandler+0x478>
+ 8001ef2:	4a68      	ldr	r2, [pc, #416]	; (8002094 <TIM8_UP_TIM13_IRQHandler+0x5cc>)
+ 8001ef4:	4b6f      	ldr	r3, [pc, #444]	; (80020b4 <TIM8_UP_TIM13_IRQHandler+0x5ec>)
+ 8001ef6:	4614      	mov	r4, r2
+ 8001ef8:	461d      	mov	r5, r3
+ 8001efa:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
+ 8001efc:	c40f      	stmia	r4!, {r0, r1, r2, r3}
+ 8001efe:	e895 0007 	ldmia.w	r5, {r0, r1, r2}
+ 8001f02:	e884 0007 	stmia.w	r4, {r0, r1, r2}
+ 8001f06:	e019      	b.n	8001f3c <TIM8_UP_TIM13_IRQHandler+0x474>
 			}
 			// 가장 초기값이 아니라면, 이 부분으로 넘어간다.
 			else {
 				// 종단값은 상태 변수의 마지막 값을 넣어준다.
 				memcpy(FF_x, EPnx_end, sizeof(FF_x));
- 8001f0c:	4a5e      	ldr	r2, [pc, #376]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001f0e:	4b6a      	ldr	r3, [pc, #424]	; (80020b8 <TIM8_UP_TIM13_IRQHandler+0x5f0>)
- 8001f10:	4614      	mov	r4, r2
- 8001f12:	461d      	mov	r5, r3
- 8001f14:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
- 8001f16:	c40f      	stmia	r4!, {r0, r1, r2, r3}
- 8001f18:	e895 0007 	ldmia.w	r5, {r0, r1, r2}
- 8001f1c:	e884 0007 	stmia.w	r4, {r0, r1, r2}
+ 8001f08:	4a5f      	ldr	r2, [pc, #380]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001f0a:	4b6b      	ldr	r3, [pc, #428]	; (80020b8 <TIM8_UP_TIM13_IRQHandler+0x5f0>)
+ 8001f0c:	4614      	mov	r4, r2
+ 8001f0e:	461d      	mov	r5, r3
+ 8001f10:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
+ 8001f12:	c40f      	stmia	r4!, {r0, r1, r2, r3}
+ 8001f14:	e895 0007 	ldmia.w	r5, {r0, r1, r2}
+ 8001f18:	e884 0007 	stmia.w	r4, {r0, r1, r2}
 				// 시불변 LQ 게인값은 미리 저장해둔 값을 사용하며, EP값에 맞춰 따라서 사용한다.
 				memcpy(FF_K, EPnK + DIP_state_cnt * mode_p, sizeof(FF_K));
- 8001f20:	4b66      	ldr	r3, [pc, #408]	; (80020bc <TIM8_UP_TIM13_IRQHandler+0x5f4>)
- 8001f22:	781b      	ldrb	r3, [r3, #0]
- 8001f24:	b2db      	uxtb	r3, r3
- 8001f26:	461a      	mov	r2, r3
- 8001f28:	4613      	mov	r3, r2
- 8001f2a:	00db      	lsls	r3, r3, #3
- 8001f2c:	1a9b      	subs	r3, r3, r2
- 8001f2e:	009b      	lsls	r3, r3, #2
- 8001f30:	461a      	mov	r2, r3
- 8001f32:	4b60      	ldr	r3, [pc, #384]	; (80020b4 <TIM8_UP_TIM13_IRQHandler+0x5ec>)
- 8001f34:	4413      	add	r3, r2
- 8001f36:	221c      	movs	r2, #28
- 8001f38:	4619      	mov	r1, r3
- 8001f3a:	4856      	ldr	r0, [pc, #344]	; (8002094 <TIM8_UP_TIM13_IRQHandler+0x5cc>)
- 8001f3c:	f007 fc63 	bl	8009806 <memcpy>
+ 8001f1c:	4b67      	ldr	r3, [pc, #412]	; (80020bc <TIM8_UP_TIM13_IRQHandler+0x5f4>)
+ 8001f1e:	781b      	ldrb	r3, [r3, #0]
+ 8001f20:	b2db      	uxtb	r3, r3
+ 8001f22:	461a      	mov	r2, r3
+ 8001f24:	4613      	mov	r3, r2
+ 8001f26:	00db      	lsls	r3, r3, #3
+ 8001f28:	1a9b      	subs	r3, r3, r2
+ 8001f2a:	009b      	lsls	r3, r3, #2
+ 8001f2c:	461a      	mov	r2, r3
+ 8001f2e:	4b61      	ldr	r3, [pc, #388]	; (80020b4 <TIM8_UP_TIM13_IRQHandler+0x5ec>)
+ 8001f30:	4413      	add	r3, r2
+ 8001f32:	221c      	movs	r2, #28
+ 8001f34:	4619      	mov	r1, r3
+ 8001f36:	4857      	ldr	r0, [pc, #348]	; (8002094 <TIM8_UP_TIM13_IRQHandler+0x5cc>)
+ 8001f38:	f007 fc65 	bl	8009806 <memcpy>
 			}
 
 			FF_u = 0;				// 선형 제어 부분에서 입력이 0으로 고정이다.
- 8001f40:	4b56      	ldr	r3, [pc, #344]	; (800209c <TIM8_UP_TIM13_IRQHandler+0x5d4>)
- 8001f42:	f04f 0200 	mov.w	r2, #0
- 8001f46:	601a      	str	r2, [r3, #0]
+ 8001f3c:	4b57      	ldr	r3, [pc, #348]	; (800209c <TIM8_UP_TIM13_IRQHandler+0x5d4>)
+ 8001f3e:	f04f 0200 	mov.w	r2, #0
+ 8001f42:	601a      	str	r2, [r3, #0]
 			time_L += sample_time; 	// 선형 구간으로 들어섰으니 시간을 체크한다.
- 8001f48:	4b57      	ldr	r3, [pc, #348]	; (80020a8 <TIM8_UP_TIM13_IRQHandler+0x5e0>)
- 8001f4a:	e9d3 0100 	ldrd	r0, r1, [r3]
- 8001f4e:	a34a      	add	r3, pc, #296	; (adr r3, 8002078 <TIM8_UP_TIM13_IRQHandler+0x5b0>)
- 8001f50:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8001f54:	f7fe f9aa 	bl	80002ac <__adddf3>
- 8001f58:	4602      	mov	r2, r0
- 8001f5a:	460b      	mov	r3, r1
- 8001f5c:	4952      	ldr	r1, [pc, #328]	; (80020a8 <TIM8_UP_TIM13_IRQHandler+0x5e0>)
- 8001f5e:	e9c1 2300 	strd	r2, r3, [r1]
+ 8001f44:	4b58      	ldr	r3, [pc, #352]	; (80020a8 <TIM8_UP_TIM13_IRQHandler+0x5e0>)
+ 8001f46:	e9d3 0100 	ldrd	r0, r1, [r3]
+ 8001f4a:	a34b      	add	r3, pc, #300	; (adr r3, 8002078 <TIM8_UP_TIM13_IRQHandler+0x5b0>)
+ 8001f4c:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8001f50:	f7fe f9ac 	bl	80002ac <__adddf3>
+ 8001f54:	4602      	mov	r2, r0
+ 8001f56:	460b      	mov	r3, r1
+ 8001f58:	4953      	ldr	r1, [pc, #332]	; (80020a8 <TIM8_UP_TIM13_IRQHandler+0x5e0>)
+ 8001f5a:	e9c1 2300 	strd	r2, r3, [r1]
 		}
 
 		// feedforward 궤적과 실제값의 오차값을 미리 계산해주고, 진자각도는 -pi~pi 사이로 변환시켜 저장한다.
 		err[0] = cart_pos - FF_x[0];
- 8001f62:	4b57      	ldr	r3, [pc, #348]	; (80020c0 <TIM8_UP_TIM13_IRQHandler+0x5f8>)
- 8001f64:	ed93 7a00 	vldr	s14, [r3]
- 8001f68:	4b47      	ldr	r3, [pc, #284]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001f6a:	edd3 7a00 	vldr	s15, [r3]
- 8001f6e:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8001f72:	4b54      	ldr	r3, [pc, #336]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
- 8001f74:	edc3 7a00 	vstr	s15, [r3]
+ 8001f5e:	4b58      	ldr	r3, [pc, #352]	; (80020c0 <TIM8_UP_TIM13_IRQHandler+0x5f8>)
+ 8001f60:	ed93 7a00 	vldr	s14, [r3]
+ 8001f64:	4b48      	ldr	r3, [pc, #288]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001f66:	edd3 7a00 	vldr	s15, [r3]
+ 8001f6a:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8001f6e:	4b55      	ldr	r3, [pc, #340]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
+ 8001f70:	edc3 7a00 	vstr	s15, [r3]
 		err[1] = modulo(theta1 - FF_x[1]);
- 8001f78:	4b53      	ldr	r3, [pc, #332]	; (80020c8 <TIM8_UP_TIM13_IRQHandler+0x600>)
- 8001f7a:	ed93 7a00 	vldr	s14, [r3]
- 8001f7e:	4b42      	ldr	r3, [pc, #264]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001f80:	edd3 7a01 	vldr	s15, [r3, #4]
- 8001f84:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8001f88:	eeb0 0a67 	vmov.f32	s0, s15
- 8001f8c:	f000 fff8 	bl	8002f80 <modulo>
- 8001f90:	eef0 7a40 	vmov.f32	s15, s0
- 8001f94:	4b4b      	ldr	r3, [pc, #300]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
- 8001f96:	edc3 7a01 	vstr	s15, [r3, #4]
+ 8001f74:	4b54      	ldr	r3, [pc, #336]	; (80020c8 <TIM8_UP_TIM13_IRQHandler+0x600>)
+ 8001f76:	ed93 7a00 	vldr	s14, [r3]
+ 8001f7a:	4b43      	ldr	r3, [pc, #268]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001f7c:	edd3 7a01 	vldr	s15, [r3, #4]
+ 8001f80:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8001f84:	eeb0 0a67 	vmov.f32	s0, s15
+ 8001f88:	f000 fffa 	bl	8002f80 <modulo>
+ 8001f8c:	eef0 7a40 	vmov.f32	s15, s0
+ 8001f90:	4b4c      	ldr	r3, [pc, #304]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
+ 8001f92:	edc3 7a01 	vstr	s15, [r3, #4]
 		err[2] = modulo(theta2 - FF_x[2]);
- 8001f9a:	4b4c      	ldr	r3, [pc, #304]	; (80020cc <TIM8_UP_TIM13_IRQHandler+0x604>)
- 8001f9c:	ed93 7a00 	vldr	s14, [r3]
- 8001fa0:	4b39      	ldr	r3, [pc, #228]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001fa2:	edd3 7a02 	vldr	s15, [r3, #8]
- 8001fa6:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8001faa:	eeb0 0a67 	vmov.f32	s0, s15
- 8001fae:	f000 ffe7 	bl	8002f80 <modulo>
- 8001fb2:	eef0 7a40 	vmov.f32	s15, s0
- 8001fb6:	4b43      	ldr	r3, [pc, #268]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
- 8001fb8:	edc3 7a02 	vstr	s15, [r3, #8]
+ 8001f96:	4b4d      	ldr	r3, [pc, #308]	; (80020cc <TIM8_UP_TIM13_IRQHandler+0x604>)
+ 8001f98:	ed93 7a00 	vldr	s14, [r3]
+ 8001f9c:	4b3a      	ldr	r3, [pc, #232]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001f9e:	edd3 7a02 	vldr	s15, [r3, #8]
+ 8001fa2:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8001fa6:	eeb0 0a67 	vmov.f32	s0, s15
+ 8001faa:	f000 ffe9 	bl	8002f80 <modulo>
+ 8001fae:	eef0 7a40 	vmov.f32	s15, s0
+ 8001fb2:	4b44      	ldr	r3, [pc, #272]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
+ 8001fb4:	edc3 7a02 	vstr	s15, [r3, #8]
 		err[3] = cart_vel - FF_x[3];
- 8001fbc:	4b44      	ldr	r3, [pc, #272]	; (80020d0 <TIM8_UP_TIM13_IRQHandler+0x608>)
- 8001fbe:	ed93 7a00 	vldr	s14, [r3]
- 8001fc2:	4b31      	ldr	r3, [pc, #196]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001fc4:	edd3 7a03 	vldr	s15, [r3, #12]
- 8001fc8:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8001fcc:	4b3d      	ldr	r3, [pc, #244]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
- 8001fce:	edc3 7a03 	vstr	s15, [r3, #12]
+ 8001fb8:	4b45      	ldr	r3, [pc, #276]	; (80020d0 <TIM8_UP_TIM13_IRQHandler+0x608>)
+ 8001fba:	ed93 7a00 	vldr	s14, [r3]
+ 8001fbe:	4b32      	ldr	r3, [pc, #200]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001fc0:	edd3 7a03 	vldr	s15, [r3, #12]
+ 8001fc4:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8001fc8:	4b3e      	ldr	r3, [pc, #248]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
+ 8001fca:	edc3 7a03 	vstr	s15, [r3, #12]
 		err[4] = d_theta1 - FF_x[4];
- 8001fd2:	4b40      	ldr	r3, [pc, #256]	; (80020d4 <TIM8_UP_TIM13_IRQHandler+0x60c>)
- 8001fd4:	ed93 7a00 	vldr	s14, [r3]
- 8001fd8:	4b2b      	ldr	r3, [pc, #172]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001fda:	edd3 7a04 	vldr	s15, [r3, #16]
- 8001fde:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8001fe2:	4b38      	ldr	r3, [pc, #224]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
- 8001fe4:	edc3 7a04 	vstr	s15, [r3, #16]
+ 8001fce:	4b41      	ldr	r3, [pc, #260]	; (80020d4 <TIM8_UP_TIM13_IRQHandler+0x60c>)
+ 8001fd0:	ed93 7a00 	vldr	s14, [r3]
+ 8001fd4:	4b2c      	ldr	r3, [pc, #176]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001fd6:	edd3 7a04 	vldr	s15, [r3, #16]
+ 8001fda:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8001fde:	4b39      	ldr	r3, [pc, #228]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
+ 8001fe0:	edc3 7a04 	vstr	s15, [r3, #16]
 		err[5] = d_theta2 - FF_x[5];
- 8001fe8:	4b3b      	ldr	r3, [pc, #236]	; (80020d8 <TIM8_UP_TIM13_IRQHandler+0x610>)
- 8001fea:	ed93 7a00 	vldr	s14, [r3]
- 8001fee:	4b26      	ldr	r3, [pc, #152]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8001ff0:	edd3 7a05 	vldr	s15, [r3, #20]
- 8001ff4:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8001ff8:	4b32      	ldr	r3, [pc, #200]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
- 8001ffa:	edc3 7a05 	vstr	s15, [r3, #20]
+ 8001fe4:	4b3c      	ldr	r3, [pc, #240]	; (80020d8 <TIM8_UP_TIM13_IRQHandler+0x610>)
+ 8001fe6:	ed93 7a00 	vldr	s14, [r3]
+ 8001fea:	4b27      	ldr	r3, [pc, #156]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8001fec:	edd3 7a05 	vldr	s15, [r3, #20]
+ 8001ff0:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8001ff4:	4b33      	ldr	r3, [pc, #204]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
+ 8001ff6:	edc3 7a05 	vstr	s15, [r3, #20]
 		err[6] = cart_int - FF_x[6];
- 8001ffe:	4b37      	ldr	r3, [pc, #220]	; (80020dc <TIM8_UP_TIM13_IRQHandler+0x614>)
- 8002000:	ed93 7a00 	vldr	s14, [r3]
- 8002004:	4b20      	ldr	r3, [pc, #128]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
- 8002006:	edd3 7a06 	vldr	s15, [r3, #24]
- 800200a:	ee77 7a67 	vsub.f32	s15, s14, s15
- 800200e:	4b2d      	ldr	r3, [pc, #180]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
- 8002010:	edc3 7a06 	vstr	s15, [r3, #24]
+ 8001ffa:	4b38      	ldr	r3, [pc, #224]	; (80020dc <TIM8_UP_TIM13_IRQHandler+0x614>)
+ 8001ffc:	ed93 7a00 	vldr	s14, [r3]
+ 8002000:	4b21      	ldr	r3, [pc, #132]	; (8002088 <TIM8_UP_TIM13_IRQHandler+0x5c0>)
+ 8002002:	edd3 7a06 	vldr	s15, [r3, #24]
+ 8002006:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 800200a:	4b2e      	ldr	r3, [pc, #184]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
+ 800200c:	edc3 7a06 	vstr	s15, [r3, #24]
 
 
 		// 카트에 인가될 가속도값 계산
 		cart_acc = FF_u; // 선행 입력 가속도를 미리 저장한다.
- 8002014:	4b21      	ldr	r3, [pc, #132]	; (800209c <TIM8_UP_TIM13_IRQHandler+0x5d4>)
- 8002016:	681b      	ldr	r3, [r3, #0]
- 8002018:	4a31      	ldr	r2, [pc, #196]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
- 800201a:	6013      	str	r3, [r2, #0]
+ 8002010:	4b22      	ldr	r3, [pc, #136]	; (800209c <TIM8_UP_TIM13_IRQHandler+0x5d4>)
+ 8002012:	681b      	ldr	r3, [r3, #0]
+ 8002014:	4a32      	ldr	r2, [pc, #200]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
+ 8002016:	6013      	str	r3, [r2, #0]
 		// 이후 반복문을 통해 보상값을 합해서 식을 간단하게 만들어준다.
 		// 반복문은 간단하다. 상태변수 개수만큼 반복하며, 각각의 오차값에 보상값을 곱해주는 것을 더한다.
 		for (int i = 0; i < DIP_state_cnt; i++)
- 800201c:	2300      	movs	r3, #0
- 800201e:	607b      	str	r3, [r7, #4]
- 8002020:	e018      	b.n	8002054 <TIM8_UP_TIM13_IRQHandler+0x58c>
+ 8002018:	2300      	movs	r3, #0
+ 800201a:	607b      	str	r3, [r7, #4]
+ 800201c:	e018      	b.n	8002050 <TIM8_UP_TIM13_IRQHandler+0x588>
 			cart_acc += FF_K[i] * err[i];
- 8002022:	4a1c      	ldr	r2, [pc, #112]	; (8002094 <TIM8_UP_TIM13_IRQHandler+0x5cc>)
- 8002024:	687b      	ldr	r3, [r7, #4]
- 8002026:	009b      	lsls	r3, r3, #2
- 8002028:	4413      	add	r3, r2
- 800202a:	ed93 7a00 	vldr	s14, [r3]
- 800202e:	4a25      	ldr	r2, [pc, #148]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
- 8002030:	687b      	ldr	r3, [r7, #4]
- 8002032:	009b      	lsls	r3, r3, #2
- 8002034:	4413      	add	r3, r2
- 8002036:	edd3 7a00 	vldr	s15, [r3]
- 800203a:	ee27 7a27 	vmul.f32	s14, s14, s15
- 800203e:	4b28      	ldr	r3, [pc, #160]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
- 8002040:	edd3 7a00 	vldr	s15, [r3]
- 8002044:	ee77 7a27 	vadd.f32	s15, s14, s15
- 8002048:	4b25      	ldr	r3, [pc, #148]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
- 800204a:	edc3 7a00 	vstr	s15, [r3]
+ 800201e:	4a1d      	ldr	r2, [pc, #116]	; (8002094 <TIM8_UP_TIM13_IRQHandler+0x5cc>)
+ 8002020:	687b      	ldr	r3, [r7, #4]
+ 8002022:	009b      	lsls	r3, r3, #2
+ 8002024:	4413      	add	r3, r2
+ 8002026:	ed93 7a00 	vldr	s14, [r3]
+ 800202a:	4a26      	ldr	r2, [pc, #152]	; (80020c4 <TIM8_UP_TIM13_IRQHandler+0x5fc>)
+ 800202c:	687b      	ldr	r3, [r7, #4]
+ 800202e:	009b      	lsls	r3, r3, #2
+ 8002030:	4413      	add	r3, r2
+ 8002032:	edd3 7a00 	vldr	s15, [r3]
+ 8002036:	ee27 7a27 	vmul.f32	s14, s14, s15
+ 800203a:	4b29      	ldr	r3, [pc, #164]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
+ 800203c:	edd3 7a00 	vldr	s15, [r3]
+ 8002040:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 8002044:	4b26      	ldr	r3, [pc, #152]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
+ 8002046:	edc3 7a00 	vstr	s15, [r3]
 		for (int i = 0; i < DIP_state_cnt; i++)
- 800204e:	687b      	ldr	r3, [r7, #4]
- 8002050:	3301      	adds	r3, #1
- 8002052:	607b      	str	r3, [r7, #4]
- 8002054:	687b      	ldr	r3, [r7, #4]
- 8002056:	2b06      	cmp	r3, #6
- 8002058:	dde3      	ble.n	8002022 <TIM8_UP_TIM13_IRQHandler+0x55a>
+ 800204a:	687b      	ldr	r3, [r7, #4]
+ 800204c:	3301      	adds	r3, #1
+ 800204e:	607b      	str	r3, [r7, #4]
+ 8002050:	687b      	ldr	r3, [r7, #4]
+ 8002052:	2b06      	cmp	r3, #6
+ 8002054:	dde3      	ble.n	800201e <TIM8_UP_TIM13_IRQHandler+0x556>
 
 		// 가속도 제한기
 		if (cart_acc > 100.0)
- 800205a:	4b21      	ldr	r3, [pc, #132]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
- 800205c:	edd3 7a00 	vldr	s15, [r3]
- 8002060:	ed9f 7a20 	vldr	s14, [pc, #128]	; 80020e4 <TIM8_UP_TIM13_IRQHandler+0x61c>
- 8002064:	eef4 7ac7 	vcmpe.f32	s15, s14
- 8002068:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 800206c:	dd3e      	ble.n	80020ec <TIM8_UP_TIM13_IRQHandler+0x624>
+ 8002056:	4b22      	ldr	r3, [pc, #136]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
+ 8002058:	edd3 7a00 	vldr	s15, [r3]
+ 800205c:	ed9f 7a21 	vldr	s14, [pc, #132]	; 80020e4 <TIM8_UP_TIM13_IRQHandler+0x61c>
+ 8002060:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8002064:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8002068:	dd40      	ble.n	80020ec <TIM8_UP_TIM13_IRQHandler+0x624>
 			cart_acc = 100.0;
- 800206e:	4b1c      	ldr	r3, [pc, #112]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
- 8002070:	4a1d      	ldr	r2, [pc, #116]	; (80020e8 <TIM8_UP_TIM13_IRQHandler+0x620>)
- 8002072:	601a      	str	r2, [r3, #0]
- 8002074:	e047      	b.n	8002106 <TIM8_UP_TIM13_IRQHandler+0x63e>
- 8002076:	bf00      	nop
+ 800206a:	4b1d      	ldr	r3, [pc, #116]	; (80020e0 <TIM8_UP_TIM13_IRQHandler+0x618>)
+ 800206c:	4a1e      	ldr	r2, [pc, #120]	; (80020e8 <TIM8_UP_TIM13_IRQHandler+0x620>)
+ 800206e:	601a      	str	r2, [r3, #0]
+ 8002070:	e049      	b.n	8002106 <TIM8_UP_TIM13_IRQHandler+0x63e>
+ 8002072:	bf00      	nop
+ 8002074:	f3af 8000 	nop.w
  8002078:	d2f1a9fc 	.word	0xd2f1a9fc
  800207c:	3f50624d 	.word	0x3f50624d
  8002080:	20004218 	.word	0x20004218
@@ -5384,11 +5385,11 @@ void con_PI1_Init() {
  8002e1a:	4770      	bx	lr
  8002e1c:	200041a8 	.word	0x200041a8
  8002e20:	3a83126f 	.word	0x3a83126f
- 8002e24:	4182c6a8 	.word	0x4182c6a8
- 8002e28:	43bc8aba 	.word	0x43bc8aba
+ 8002e24:	41801062 	.word	0x41801062
+ 8002e28:	4421c79e 	.word	0x4421c79e
  8002e2c:	41c00000 	.word	0x41c00000
  8002e30:	c1c00000 	.word	0xc1c00000
- 8002e34:	3d7a90dc 	.word	0x3d7a90dc
+ 8002e34:	3d7fdf40 	.word	0x3d7fdf40
  8002e38:	08002e3d 	.word	0x08002e3d
 
 08002e3c <con_PI_calc>:

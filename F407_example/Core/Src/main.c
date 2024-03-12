@@ -499,6 +499,7 @@ volatile int16_t enc2_cnt;
 volatile int16_t enc1_cnt_prev;
 volatile int16_t enc2_cnt_prev;
 volatile int16_t enc1_diff;
+volatile int16_t test_enc_diff;
 volatile int16_t enc2_diff;
 volatile uint32_t clock1_cnt;
 volatile uint32_t clock2_cnt;
@@ -510,8 +511,10 @@ volatile float d_theta1_mt = 0;
 volatile float d_theta2_mt = 0;
 volatile float temp_d_theta1_mt;
 volatile float temp_d_theta2_mt;
-float temp_d_theta1;
-float temp_d_theta2;
+volatile float temp_d_theta1;
+volatile float temp_d_theta2;
+float test_mt;
+float test;
 
 int main(void) {
 
@@ -569,6 +572,11 @@ int main(void) {
 	enc1_p = 0;
 	enc2_p = 0;
 	enc3_p = 0;
+
+	enc1_cnt_prev = 0;
+	clock1_cnt_prev = 0;
+	enc2_cnt_prev = 0;
+	clock2_cnt_prev = 0;
 
 	// 돌입 전류를 막고자 시작 전 1초간 여유를 주기 위함.
 	DWT_ms_Delay(1000);
@@ -798,6 +806,7 @@ int main(void) {
 	TIM2->CNT = 0;  // Counter를 0으로 clear
 	TIM3->CNT = 0;  // Counter를 0으로 clear
 	TIM4->CNT = 0;  // Counter를 0으로 clear
+	TIM5->CNT = 0; // MT method 시계
 
 	// LED 출력에 관한 핀들을 세팅함
 	// 모든 준비가 setup 단계에서 마무리 되었다면 EP0의 상태와 같으므로 LED2번의 빛만 ON 시킨다.
@@ -810,197 +819,193 @@ int main(void) {
 	NVIC_EnableIRQ(TIM6_DAC_IRQn);
 	//============================================================
 
-	enc1_cnt_prev = TIM3->CNT;
-	clock1_cnt_prev = TIM5->CNT;
-	enc2_cnt_prev = TIM4->CNT;
-	clock2_cnt_prev = TIM5->CNT;
 	// 해당 부분부터는 메인 loop 부분으로 이 영역에서는 스위치 신호에 맞춰 천이 궤적을 SD카드에서 가져오고,
 	// 모든 값을 가져온 이후에 tr_flag를 True로 바꾸는 순간 천이 시작된다.
 	// 2-DOF 제어는 천이 과정 중에 다음 상태로 바꿀 수 없으므로, 천이 과정중 다음 궤적 명령은 무시된다.
 	while (1) {
 		GPIOC->BSRR |= GPIO_BSRR_BS2;   // PC2 HIGH;
-		temp_d_theta1_mt = d_theta1_mt;
-		temp_d_theta1 = d_theta1;
-		temp_d_theta2_mt = d_theta2_mt;
-		temp_d_theta2 = d_theta2;
+//		temp_d_theta1_mt = d_theta1_mt;
+//		temp_d_theta1 = d_theta1;
+//		temp_d_theta2_mt = d_theta2_mt;
+//		temp_d_theta2 = d_theta2;
 		// 천이 궤적 선택부로, 기본적으로 스위치가 8개인 상황임.
 		// 각각 EP0, EP1, EP2, EP3, Random1, Random2, ... 과 대응되며,
 		// 또한 천이 중이 아닌경우에만 실행. (!tr_flag)
 		// mode는 EP의 상태를 지정하는 변수, auto_flag는 Random의 종류를 선택하는 변수.
-//		//
-//		if (!tr_flag) {
-//
-//			if (!(GPIOE->IDR & 0x01)) {			// SW1
-//				mode = 0;						// 원하는 다음 상태의 EP 번호
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				GPIOD->ODR |= 0x00001000;		// EP 번호에 맞는 LED ON
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x02)) {	// SW2
-//				mode = 1;						// 원하는 다음 상태의 EP 번호
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				GPIOD->ODR |= 0x00002000;		// EP 번호에 맞는 LED ON
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x04)) {	// SW3
-//				mode = 2;						// 원하는 다음 상태의 EP 번호
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				GPIOD->ODR |= 0x00004000;		// EP 번호에 맞는 LED ON
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x08)) {	// SW4
-//				mode = 3;						// 원하는 다음 상태의 EP 번호
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				GPIOD->ODR |= 0x00008000;		// EP 번호에 맞는 LED ON
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x10)) {	// SW5
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				auto_flag1 = true;				// Random pattern1 ON
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x20)) {	// SW6
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				auto_flag1 = false;
-//				auto_flag2 = true;				// Random pattern2 ON
-//				auto_flag3 = false;
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x40)) {	// SW7
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = true;				// Random pattern3 ON
-//				auto_flag4 = false;
-//
-//			} else if (!(GPIOE->IDR & 0x80)) {	// SW8
-//				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
-//				auto_flag1 = false;
-//				auto_flag2 = false;
-//				auto_flag3 = false;
-//				auto_flag4 = true;				// Random pattern4 ON
-//			}
-//
-//			// Random pattern 선택시 다음의 조건문을 들어온다.
-//			if (auto_flag1 || auto_flag2 || auto_flag3 || auto_flag4) {
-//
-//				// 선형 구간에서 4초 이상 안정적인 상태일 때 동작하도록 설계
-//				if (time_L > 4) {
-//
-//					// Random pattern1
-//					// 12가지 천이궤적을 모두 천이하는 궤적
-//					// 천이순서는 다음과 같음.
-//					// 1->2->3->2->1->3->1->0->2->0->3->0-> ...
-//					if (auto_flag1) {
-//						// 12가지 패턴이 끝나면 0으로 초기화
-//						if (p_i >= 12)
-//							p_i = 0;
-//						// 현재 모드에 맞는 값으로 들어감.
-//						mode = pattern1[p_i];
-//					}
-//
-//					// Random pattern2
-//					// 6가지 천이궤적을 모두 천이하는 궤적
-//					// 천이순서는 다음과 같음.
-//					// 1->2->3->2->1->0->...
-//					if (auto_flag2) {
-//						// 6가지 패턴이 끝나면 0으로 초기화
-//						if (p_i >= 6)
-//							p_i = 0;
-//						// 현재 모드에 맞는 값으로 들어감.
-//						mode = pattern2[p_i];
-//					}
-//
-//					// Random pattern3
-//					// 6가지 천이궤적을 모두 천이하는 궤적
-//					// 천이순서는 다음과 같음.
-//					// 3->0->2->0->1->0-> ...
-//					if (auto_flag3) {
-//						// 6가지 패턴이 끝나면 0으로 초기화
-//						if (p_i >= 6)
-//							p_i = 0;
-//						// 현재 모드에 맞는 값으로 들어감.
-//						mode = pattern3[p_i];
-//					}
-//
-//					// Random pattern4
-//					// 2가지 천이궤적을 모두 천이하는 궤적
-//					// 천이순서는 다음과 같음.
-//					// 3->0-> ...
-//					if (auto_flag4) {
-//						// 2가지 패턴이 끝나면 0으로 초기화
-//						if (p_i >= 2)
-//							p_i = 0;
-//						// 현재 모드에 맞는 값으로 들어감.
-//						mode = pattern4[p_i];
-//					}
-//
-//					GPIOD->ODR &= ~0x0000F000;			// LED 초기화
-//					GPIOD->ODR |= (0x00001000 << mode); // 현재 모드에 맞는 LED에 불이 켜짐.
-//					p_i++;								// 패턴 index의 값을 증가시킴.
-//				}
-//			}
-//			// Random pattern이 아닐 경우,
-//			else
-//				p_i = 0;			// Pattern index 초기화
-//
-//			DWT_us_Delay(100);
-//
-//			// 2-DOF m값 연산
-//			//   \   0   1   2   3   (start)
-//			//       ---------------
-//			//   0|  x   4   7  10
-//			//   1|  1   x   8  11
-//			//   2|  2   5   x  12
-//			//   3|  3   6   9   x
-//			// (end)
-//			//
-//			// 위 표를 참고하여, 다음과 같은 식을 이용하면,
-//			// 현재 EP(mode)와 과거 EP(mode_p)를 이용해서 궤적의 종류(m)을 구할 수 있음.
-//			// 이는 현재 EP와 과거 EP가 다른 순간에만 진행되며, 그 때 천이 상태가 아니어야 함.
-//			// 현재 상태가 과거 상태와 다를 떄만 동작, 가장 초기단계에서 mode와 mode_p가 0으로 초기화 되어있다.
-//			if (mode != mode_p) {
-//				// 이 연산 과정은 EP의 과거값과 현재값을 이용하면, 다음과 같은 식으로 m값을 쉽게 구할 수 있다.
-//				// 다음의 과정은 위의 표를 참고하면 쉽게 이해할 수 있다.
-//				if (mode_p < mode)
-//					m = 3 * mode_p + mode;
-//				else
-//					m = 3 * mode_p + mode + 1;
-//
-//				// SD카드에서 m값에 맞는 feedforward 천이궤적을 가져옴.
-//				Get_Transition_param(TRnnt, TRnnu, TRnnx, TRnnK, m);
-//
-//				// feedforward 상태 궤적의 가장 마지막 수렴점을 미리 받는다.
-//				// 이는 선형제어 시 수렴값을 선정하기 위함.
-//				for (int i = 0; i < DIP_state_cnt; i++)
-//					EPnx_end[i] = TRnnx[DIP_point_cnt-1][i];
-//
-//				// 이후 과거값을 저장한다.
-//				mode_p = mode;
-//				m_p = m;
-//
-//				time_ff = time_r; 	// 궤적을 가져온 직후의 simulation time을 가져와서 feedforwawrd 시작 지점으로 선정한다.
-//				tr_flag = true;		// 모든 값을 수정했다면, 천이를 진행한다.(시간 설정 이후에 바로 천이를 시작해야 오류가 나지 않는다. 이 사이에는 절대 아무 코드도 넣으면 안된다.)
-//			}
-//		}
+		//
+		if (!tr_flag) {
 
+			if (!(GPIOE->IDR & 0x01)) {			// SW1
+				mode = 0;						// 원하는 다음 상태의 EP 번호
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				GPIOD->ODR |= 0x00001000;		// EP 번호에 맞는 LED ON
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x02)) {	// SW2
+				mode = 1;						// 원하는 다음 상태의 EP 번호
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				GPIOD->ODR |= 0x00002000;		// EP 번호에 맞는 LED ON
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x04)) {	// SW3
+				mode = 2;						// 원하는 다음 상태의 EP 번호
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				GPIOD->ODR |= 0x00004000;		// EP 번호에 맞는 LED ON
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x08)) {	// SW4
+				mode = 3;						// 원하는 다음 상태의 EP 번호
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				GPIOD->ODR |= 0x00008000;		// EP 번호에 맞는 LED ON
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x10)) {	// SW5
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				auto_flag1 = true;				// Random pattern1 ON
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x20)) {	// SW6
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				auto_flag1 = false;
+				auto_flag2 = true;				// Random pattern2 ON
+				auto_flag3 = false;
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x40)) {	// SW7
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = true;				// Random pattern3 ON
+				auto_flag4 = false;
+
+			} else if (!(GPIOE->IDR & 0x80)) {	// SW8
+				GPIOD->ODR &= ~0x0000F000;		// LED 초기화
+				auto_flag1 = false;
+				auto_flag2 = false;
+				auto_flag3 = false;
+				auto_flag4 = true;				// Random pattern4 ON
+			}
+
+			// Random pattern 선택시 다음의 조건문을 들어온다.
+			if (auto_flag1 || auto_flag2 || auto_flag3 || auto_flag4) {
+
+				// 선형 구간에서 4초 이상 안정적인 상태일 때 동작하도록 설계
+				if (time_L > 4) {
+
+					// Random pattern1
+					// 12가지 천이궤적을 모두 천이하는 궤적
+					// 천이순서는 다음과 같음.
+					// 1->2->3->2->1->3->1->0->2->0->3->0-> ...
+					if (auto_flag1) {
+						// 12가지 패턴이 끝나면 0으로 초기화
+						if (p_i >= 12)
+							p_i = 0;
+						// 현재 모드에 맞는 값으로 들어감.
+						mode = pattern1[p_i];
+					}
+
+					// Random pattern2
+					// 6가지 천이궤적을 모두 천이하는 궤적
+					// 천이순서는 다음과 같음.
+					// 1->2->3->2->1->0->...
+					if (auto_flag2) {
+						// 6가지 패턴이 끝나면 0으로 초기화
+						if (p_i >= 6)
+							p_i = 0;
+						// 현재 모드에 맞는 값으로 들어감.
+						mode = pattern2[p_i];
+					}
+
+					// Random pattern3
+					// 6가지 천이궤적을 모두 천이하는 궤적
+					// 천이순서는 다음과 같음.
+					// 3->0->2->0->1->0-> ...
+					if (auto_flag3) {
+						// 6가지 패턴이 끝나면 0으로 초기화
+						if (p_i >= 6)
+							p_i = 0;
+						// 현재 모드에 맞는 값으로 들어감.
+						mode = pattern3[p_i];
+					}
+
+					// Random pattern4
+					// 2가지 천이궤적을 모두 천이하는 궤적
+					// 천이순서는 다음과 같음.
+					// 3->0-> ...
+					if (auto_flag4) {
+						// 2가지 패턴이 끝나면 0으로 초기화
+						if (p_i >= 2)
+							p_i = 0;
+						// 현재 모드에 맞는 값으로 들어감.
+						mode = pattern4[p_i];
+					}
+
+					GPIOD->ODR &= ~0x0000F000;			// LED 초기화
+					GPIOD->ODR |= (0x00001000 << mode); // 현재 모드에 맞는 LED에 불이 켜짐.
+					p_i++;								// 패턴 index의 값을 증가시킴.
+				}
+			}
+			// Random pattern이 아닐 경우,
+			else
+				p_i = 0;			// Pattern index 초기화
+
+			DWT_us_Delay(100);
+
+			// 2-DOF m값 연산
+			//   \   0   1   2   3   (start)
+			//       ---------------
+			//   0|  x   4   7  10
+			//   1|  1   x   8  11
+			//   2|  2   5   x  12
+			//   3|  3   6   9   x
+			// (end)
+			//
+			// 위 표를 참고하여, 다음과 같은 식을 이용하면,
+			// 현재 EP(mode)와 과거 EP(mode_p)를 이용해서 궤적의 종류(m)을 구할 수 있음.
+			// 이는 현재 EP와 과거 EP가 다른 순간에만 진행되며, 그 때 천이 상태가 아니어야 함.
+			// 현재 상태가 과거 상태와 다를 떄만 동작, 가장 초기단계에서 mode와 mode_p가 0으로 초기화 되어있다.
+			if (mode != mode_p) {
+				// 이 연산 과정은 EP의 과거값과 현재값을 이용하면, 다음과 같은 식으로 m값을 쉽게 구할 수 있다.
+				// 다음의 과정은 위의 표를 참고하면 쉽게 이해할 수 있다.
+				if (mode_p < mode)
+					m = 3 * mode_p + mode;
+				else
+					m = 3 * mode_p + mode + 1;
+
+				// SD카드에서 m값에 맞는 feedforward 천이궤적을 가져옴.
+				Get_Transition_param(TRnnt, TRnnu, TRnnx, TRnnK, m);
+
+				// feedforward 상태 궤적의 가장 마지막 수렴점을 미리 받는다.
+				// 이는 선형제어 시 수렴값을 선정하기 위함.
+				for (int i = 0; i < DIP_state_cnt; i++)
+					EPnx_end[i] = TRnnx[DIP_point_cnt-1][i];
+
+				// 이후 과거값을 저장한다.
+				mode_p = mode;
+				m_p = m;
+
+				time_ff = time_r; 	// 궤적을 가져온 직후의 simulation time을 가져와서 feedforwawrd 시작 지점으로 선정한다.
+				tr_flag = true;		// 모든 값을 수정했다면, 천이를 진행한다.(시간 설정 이후에 바로 천이를 시작해야 오류가 나지 않는다. 이 사이에는 절대 아무 코드도 넣으면 안된다.)
+			}
+		}
+		test_mt = temp_d_theta1_mt;
+		test = temp_d_theta1;
 //		sprintf(str, "%.2f\n",d_theta1_mt);
-//		sprintf(str, "%.2f %.2f\n", temp_d_theta1_mt, temp_d_theta1);
-		sprintf(str, "%.2f %.2f\n", temp_d_theta2_mt, temp_d_theta2);
+		sprintf(str, "%.2f %.2f\n", test_mt, test);
 		UsbPutString(str);
 //		TX3_PutString(str);
 		GPIOC->BSRR |= GPIO_BSRR_BR2;   // PC2 HIGH;
@@ -1022,18 +1027,22 @@ void TIM6_DAC_IRQHandler()  // IRQ Handler의 이름은 startup_stm32f407xx.s �
 		enc1 = TIM2->CNT;
 		enc2 = TIM3->CNT;
 		enc3 = TIM4->CNT;
-//		temp_d_theta1_mt = d_theta1_mt;
+
+		temp_d_theta1_mt = d_theta1_mt;
+		temp_d_theta2_mt = d_theta2_mt;
+
 		// encoder 값을 이용해서 상태변수값 생성
 		cart_pos = (float) enc1 * enc1_to_pos;
 		theta1 = (float) enc2 * enc2_to_rad - PI;
 		theta2 = (float) enc3 * enc3_to_rad;
 		cart_vel = (float) (enc1 - enc1_p) * enc1_to_pos / sample_time;	// 속도값 계산
-		d_theta1 = (float) (enc2 - enc2_p) * enc2_to_rad / sample_time;	// 각속도값 계산
-//		d_theta1 = temp_d_theta1_mt;
-		d_theta2 = (float) (enc3 - enc3_p) * enc3_to_rad / sample_time;	// 각속도값 계산
-//		d_theta2 = temp_d_theta2_mt;
+//		d_theta1 = (float) (enc2 - enc2_p) * enc2_to_rad / sample_time;	// 각속도값 계산
+		d_theta1 = temp_d_theta1_mt;
+//		d_theta2 = (float) (enc3 - enc3_p) * enc3_to_rad / sample_time;	// 각속도값 계산
+		d_theta2 = temp_d_theta2_mt;
 		cart_int += cart_pos * sample_time;
 
+		temp_d_theta1 = (float) (enc2 - enc2_p) * enc2_to_rad / sample_time;
 		// 미분 계산을 위해 과거값 저장
 		enc1_p = enc1;
 		enc2_p = enc2;
@@ -1759,8 +1768,8 @@ void Timer6_Interrupt_Init()
 }
 //=================For M/T Method=====================
 //====TIM1====
-//	A상 = TIM3_CH1(PB4) = TIM1_CH1(PE9)
-//	B상 = TIM3_CH2(PB5) = TIM1_CH2(PE11)
+//	A상 = TIM3_CH1(PB4) => TIM1_CH1(PE9)
+//	B상 = TIM3_CH2(PB5) => TIM1_CH2(PE11)
 //	0) GPIO 클럭 인가, TIM1 클럭 인가
 //	1) GPIO 2개 alternate function으로 설정
 //	2) AFR 설정
@@ -1823,16 +1832,16 @@ void TIM1_CC_IRQHandler() { // IRQ Handler의 이름은 startup_stm32f407xx.s �
 	clock1_cnt = TIM5->CNT;
 
 	enc1_diff = enc1_cnt - enc1_cnt_prev;		// 논문에서 m1에 해당
-	enc1_cnt_prev = enc1_cnt; // 값 저장
 
 	clock1_diff = clock1_cnt - clock1_cnt_prev;		// 논문에서 m2에 해당
-	clock1_cnt_prev = clock1_cnt;
 
 	// 논문을 보면 RPM 기준 속도가 (60*fc*m1)/(P*m2)[RPM]. (2*pi*fc*m1)/(P*m2)[rad/sec]
 	// fc는 m2가 생성되는 주파수 즉, 단순 Upcounter의 주파수가 들어가는데, prescale = 1로 가져서 FCK_PSC = 84MHz이다. 즉 42MHz
 	// P는 CPR로 생각한다. 2PI/P의 값을 enc2_to_rad라는 이름의 변수로 설정하였다.
 	d_theta1_mt = (enc2_to_rad*42000000*(float)enc1_diff)/(float)clock1_diff;
 
+	enc1_cnt_prev = enc1_cnt; // 값 저장
+	clock1_cnt_prev = clock1_cnt;
 //	if(flag1==0)
 //	{
 //		GPIOB->BSRR |= GPIO_BSRR_BS0;   // PB0 HIGH;

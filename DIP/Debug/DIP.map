@@ -3707,40 +3707,40 @@ LOAD C:/ST/STM32CubeIDE_1.12.1/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_line    0x000000000000b0e7      0x7ab ./Core/Src/usbd_ioreq.o
  .debug_line    0x000000000000b892       0x7a ./Core/Startup/startup_stm32f407vetx.o
 
-.debug_str      0x0000000000000000    0x93f7b
- .debug_str     0x0000000000000000    0x8e7d7 ./Core/Src/main.o
-                                      0x8eb21 (size before relaxing)
- .debug_str     0x000000000008e7d7     0x23af ./Core/Src/stm32f4xx_hal_pcd.o
+.debug_str      0x0000000000000000    0x93f79
+ .debug_str     0x0000000000000000    0x8e7d5 ./Core/Src/main.o
+                                      0x8eb1f (size before relaxing)
+ .debug_str     0x000000000008e7d5     0x23af ./Core/Src/stm32f4xx_hal_pcd.o
                                       0x8df43 (size before relaxing)
- .debug_str     0x0000000000090b86       0x74 ./Core/Src/stm32f4xx_hal_pcd_ex.o
+ .debug_str     0x0000000000090b84       0x74 ./Core/Src/stm32f4xx_hal_pcd_ex.o
                                       0x8d881 (size before relaxing)
- .debug_str     0x0000000000090bfa       0xcf ./Core/Src/stm32f4xx_it.o
+ .debug_str     0x0000000000090bf8       0xcf ./Core/Src/stm32f4xx_it.o
                                       0x8d8ad (size before relaxing)
- .debug_str     0x0000000000090cc9      0x3b0 ./Core/Src/stm32f4xx_ll_usb.o
+ .debug_str     0x0000000000090cc7      0x3b0 ./Core/Src/stm32f4xx_ll_usb.o
                                       0x8d11e (size before relaxing)
- .debug_str     0x0000000000091079     0x1fef ./Core/Src/syscalls.o
+ .debug_str     0x0000000000091077     0x1fef ./Core/Src/syscalls.o
                                        0x98a3 (size before relaxing)
- .debug_str     0x0000000000093068       0x6b ./Core/Src/sysmem.o
+ .debug_str     0x0000000000093066       0x6b ./Core/Src/sysmem.o
                                        0x605a (size before relaxing)
- .debug_str     0x00000000000930d3       0xf2 ./Core/Src/system_stm32f4xx.o
+ .debug_str     0x00000000000930d1       0xf2 ./Core/Src/system_stm32f4xx.o
                                       0x88293 (size before relaxing)
- .debug_str     0x00000000000931c5      0x3d9 ./Core/Src/usb_device.o
+ .debug_str     0x00000000000931c3      0x3d9 ./Core/Src/usb_device.o
                                       0x8cd3b (size before relaxing)
- .debug_str     0x000000000009359e      0x290 ./Core/Src/usbd_cdc.o
+ .debug_str     0x000000000009359c      0x290 ./Core/Src/usbd_cdc.o
                                       0x8cf61 (size before relaxing)
- .debug_str     0x000000000009382e       0xab ./Core/Src/usbd_cdc_if.o
+ .debug_str     0x000000000009382c       0xab ./Core/Src/usbd_cdc_if.o
                                       0x8ce09 (size before relaxing)
- .debug_str     0x00000000000938d9      0x23c ./Core/Src/usbd_conf.o
+ .debug_str     0x00000000000938d7      0x23c ./Core/Src/usbd_conf.o
                                       0x8f2aa (size before relaxing)
- .debug_str     0x0000000000093b15      0x112 ./Core/Src/usbd_core.o
+ .debug_str     0x0000000000093b13      0x112 ./Core/Src/usbd_core.o
                                       0x8cc2d (size before relaxing)
- .debug_str     0x0000000000093c27       0xbb ./Core/Src/usbd_ctlreq.o
+ .debug_str     0x0000000000093c25       0xbb ./Core/Src/usbd_ctlreq.o
                                       0x8cb47 (size before relaxing)
- .debug_str     0x0000000000093ce2      0x23c ./Core/Src/usbd_desc.o
+ .debug_str     0x0000000000093ce0      0x23c ./Core/Src/usbd_desc.o
                                       0x8c93c (size before relaxing)
- .debug_str     0x0000000000093f1e       0x29 ./Core/Src/usbd_ioreq.o
+ .debug_str     0x0000000000093f1c       0x29 ./Core/Src/usbd_ioreq.o
                                       0x8ca74 (size before relaxing)
- .debug_str     0x0000000000093f47       0x34 ./Core/Startup/startup_stm32f407vetx.o
+ .debug_str     0x0000000000093f45       0x34 ./Core/Startup/startup_stm32f407vetx.o
                                          0x55 (size before relaxing)
 
 .debug_frame    0x0000000000000000     0x373c

@@ -358,16 +358,16 @@ void Get_Transition_param(float t[DIP_point_cnt],			// 천이 종류에 맞는 �
 #define teeth 			38			// timing pully teeth 갯수 (2 [mm] 피치)
 #define motor_cpr 		20000		// motor encoder cpr
 #define pendulum1_cpr	8192		// pendulum1 encoder cpr
-#define pendulum2_cpr	4096		// pendulum2 encoder cpr
+#define pendulum2_cpr	8192		// pendulum2 encoder cpr -> 3단에서 분리해서 할때 8192로 바꿔야함
 #define MaxV 			24      	// 인가 전압 맥스값 24 [V]
-#define KP 				16.3470	 	// 모터제어에 사용되는 Kp값
-#define KI 				377.0838	// 모터제어에 사용되는 Ki값
+#define KP 				16.0080	 	// 모터제어에 사용되는 Kp값 -> 3단에서 분리해서 할때 16.0080로 바꿔야함
+#define KI 				647.1190	// 모터제어에 사용되는 Ki값 -> 3단에서 분리해서 할때 647.1190로 바꿔야함
 #define fc 				10			// 차단 주파수 [Hz]
 #define PI 				3.14159265 	// arm_math.h 헤더파일에도 정의 되어 있음.
 
 // 엔코더 값 변환식
 #define volt_to_duty 	4200.0 / MaxV				// 전압을 듀티로 전환
-#define enc1_to_pos 	0.002 * teeth / motor_cpr	// 엔코더 1번의 값을 cart_position [m] 으로 변환
+#define enc1_to_pos     2*PI*0.0095 / motor_cpr    // 엔코더 1번의 값을 cart_position [m] 으로 변환 -> 3단에서 분리해서 할때 바꿔야함
 #define enc2_to_rad 	2 * PI / pendulum1_cpr		// 엔코더 2번의 값을 pendulum 1 angle [rad] 으로 변환
 #define enc3_to_rad 	2 * PI / pendulum2_cpr 		// 엔코더 3번의 값을 pendulum 2 angle [rad] 으로 변환
 
